@@ -2,29 +2,28 @@ import {
   createRouteMap,
   textResponse,
   AugmentedRequest,
-  Status,
+  forMethod,
 } from "../deps.ts";
 
-function posts({ method, routeParams }: AugmentedRequest) {
-  const [id] = routeParams;
+function getPosts({ routeParams: [id] }: AugmentedRequest) {
+  return textResponse(`You requested to retrieve ${id || "all posts"}`);
+}
 
-  if (method === "GET") {
-    return textResponse(`You requested to retrieve ${id || "all posts"}`);
-  }
+function createPost() {
+  return textResponse(`You requested to create a new post`);
+}
 
-  if (method === "POST") {
-    return textResponse(`You requested to create a new post`);
-  }
-
-  if (method === "PUT") {
-    return textResponse(`You requested to edit the contents of ${id}`);
-  }
-
-  return textResponse(`Method ${method} not allowed for /posts`, {
-    status: Status.MethodNotAllowed,
-  });
+function editPost({ routeParams: [id] }: AugmentedRequest) {
+  return textResponse(`You requested to edit the contents of ${id}`);
 }
 
 export default createRouteMap([
-  ["/posts/*", posts],
+  [
+    "/posts/*",
+    forMethod([
+      ["GET", getPosts],
+      ["POST", createPost],
+      ["PUT", editPost],
+    ]),
+  ],
 ]);
