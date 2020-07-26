@@ -1,8 +1,10 @@
 import {
   ServerRequest,
   listenAndServe,
+  createRouter,
 } from "../deps.ts";
 
+import routes from "./routes.ts";
 
 const BINDING = ":8000";
 
@@ -22,16 +24,15 @@ function logRequest(req: ServerRequest) {
   console.log(`[${formatDate(new Date())}] Request for ${req.url}`);
 }
 
+const router = createRouter(routes);
+
 console.log(`Listening for requests on ${BINDING}...`);
 
-// TODO: make reader import and call listenAndServe
 await listenAndServe(
   BINDING,
   async (req: ServerRequest) => {
     logRequest(req);
 
-    return req.respond({
-      body: new TextEncoder().encode("Hello world!"),
-    });
+    return req.respond(await router(req));
   },
 );
