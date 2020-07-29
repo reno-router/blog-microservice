@@ -8,7 +8,7 @@ create table if not exists post (
 
 create table if not exists author (
   id binary(16) primary key not null,
-  contents text not null
+  display_name text not null
 );
 
 create table if not exists tag (

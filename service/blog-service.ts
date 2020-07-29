@@ -9,11 +9,28 @@ function createClientOpts() {
   ].map(([key, envVar]) => [key, Deno.env.get(envVar)]));
 }
 
+interface Author {
+  id: string;
+  displayName: string;
+}
+
+interface Tag {
+  id: string;
+  displayName: string;
+}
+
+interface Post {
+  id: string,
+  author: Author;
+  tags: Tag[];
+  contents: string
+}
+
 async function createBlogService(Client: typeof MySQLClient) {
   const client = await new Client().connect(createClientOpts());
 
   return {
-    getPosts: (): Promise<{ contents: string }[]> =>
+    getPosts: (): Promise<Post[]> =>
       client.query(`
         select id, author_id, contents from post
       `),
