@@ -5,7 +5,7 @@ function createClientOpts() {
     ["hostname", "MYSQL_HOST"],
     ["username", "MYSQL_USER"],
     ["password", "MYSQL_PASSWORD"],
-    ["db", "MYSQL_DB_NAME"]
+    ["db", "MYSQL_DATABASE"]
   ].map(([key, envVar]) => [key, Deno.env.get(envVar)]));
 }
 
@@ -13,10 +13,11 @@ async function createBlogService(Client: typeof MySQLClient) {
   const client = await new Client().connect(createClientOpts());
 
   return {
-    getPosts: (): Promise<{ result: number }> =>
-      client.query(`
-        select 1 + 1 as result
-      `),
+    getPosts: (): Promise<{ contents: string }[]> => {
+      return client.query(`
+        select id, author_id, contents from post
+      `).catch(e => { console.log(e); return e; });
+    }
   };
 }
 

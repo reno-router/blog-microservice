@@ -12,7 +12,7 @@ const blogService = await createBlogService(MySQLClient);
 
 async function getPosts({ routeParams: [id] }: AugmentedRequest) {
   const posts = await blogService.getPosts();
-  return textResponse(`Result: ${posts.result}`);
+  return textResponse(`Result: ${JSON.stringify(posts)}`);
 }
 
 function createPost() {
