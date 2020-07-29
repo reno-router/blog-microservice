@@ -23,7 +23,7 @@ interface Post {
   id: string,
   author: Author;
   tags: Tag[];
-  contents: string
+  contents: string;
 }
 
 async function createBlogService(Client: typeof MySQLClient) {
