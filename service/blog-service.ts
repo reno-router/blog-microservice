@@ -13,11 +13,10 @@ async function createBlogService(Client: typeof MySQLClient) {
   const client = await new Client().connect(createClientOpts());
 
   return {
-    getPosts: (): Promise<{ contents: string }[]> => {
-      return client.query(`
+    getPosts: (): Promise<{ contents: string }[]> =>
+      client.query(`
         select id, author_id, contents from post
-      `).catch(e => { console.log(e); return e; });
-    }
+      `),
   };
 }
 
