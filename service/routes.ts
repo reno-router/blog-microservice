@@ -3,10 +3,16 @@ import {
   textResponse,
   AugmentedRequest,
   forMethod,
+  MySQLClient,
 } from "../deps.ts";
 
-function getPosts({ routeParams: [id] }: AugmentedRequest) {
-  return textResponse(`You requested to retrieve ${id || "all posts"}`);
+import createBlogService from "./blog-service.ts";
+
+const blogService = await createBlogService(MySQLClient);
+
+async function getPosts({ routeParams: [id] }: AugmentedRequest) {
+  const posts = await blogService.getPosts();
+  return textResponse(`Result: ${posts.result}`);
 }
 
 function createPost() {

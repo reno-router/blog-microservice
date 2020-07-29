@@ -5,4 +5,4 @@ WORKDIR /microservice
 
 RUN ["deno", "cache", "deps.ts"]
 
-CMD ["run", "--allow-net", "service/server.ts"]
+CMD ["run", "--allow-env", "--allow-net", "service/server.ts"]
