@@ -47,7 +47,7 @@ create temporary table if not exists post_data (
 insert into post_data
 values
   (JSON_OBJECT(
-    'id', UUID_TO_BIN(UUID()),
+    'id', UUID(),
     'author_id', @james_id,
     'title', 'Deno 1.2.1 released',
     'contents', 'Blog content here!',
@@ -59,8 +59,10 @@ values
     )
   ));
 
+drop procedure if exists insert_data;
+
 delimiter $$
-create procedure dowhile()
+create procedure insert_data()
 begin
   declare finished int default 0;
   declare pst JSON;
@@ -73,8 +75,6 @@ begin
 
   open post_cursor;
 
-  start transaction;
-
   do_insert: loop
   	fetch post_cursor into pst;
 
@@ -84,13 +84,18 @@ begin
 
     insert into post
     values
-      (JSON_EXTRACT(pst, '$.id', '$.author_id', '$.title', '$.contents'));
+      (
+        pst->>'$.id',
+        pst->>'$.author_id',
+        pst->'$.title',
+        pst->'$.contents'
+      );
   end loop;
 
   close post_cursor;
-
-  commit;
 end
 $$
 
 delimiter ;
+
+call insert_data();
