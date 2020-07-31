@@ -75,11 +75,11 @@ begin
 
   open post_cursor;
 
-  do_insert: loop
+  insert_posts: loop
   	fetch post_cursor into pst;
 
     if finished = 1 then
-   	  leave do_insert;
+   	  leave insert_posts;
    	end if;
 
     insert into post
@@ -87,9 +87,21 @@ begin
       (
         pst->>'$.id',
         pst->>'$.author_id',
-        pst->'$.title',
-        pst->'$.contents'
+        pst->>'$.title',
+        pst->>'$.contents'
       );
+
+    insert_tags: begin
+      declare i int default 0;
+
+      while i < JSON_LENGTH(pst->'$.tag_ids') do
+        insert into post_tags
+        values
+          (UUID(), pst->>'$.id', JSON_UNQUOTE(JSON_EXTRACT(pst, CONCAT('$.tag_ids[', i, ']'))));
+
+        set i = i + 1;
+      end while;
+    end insert_tags;
   end loop;
 
   close post_cursor;
