@@ -1,6 +1,6 @@
 import {
   createRouteMap,
-  textResponse,
+  jsonResponse,
   AugmentedRequest,
   forMethod,
   MySQLClient,
@@ -12,15 +12,15 @@ const blogService = await createBlogService(MySQLClient);
 
 async function getPosts({ routeParams: [id] }: AugmentedRequest) {
   const posts = await blogService.getPosts();
-  return textResponse(`Result: ${JSON.stringify(posts)}`);
+  return jsonResponse(posts);
 }
 
 function createPost() {
-  return textResponse(`You requested to create a new post`);
+  return jsonResponse({ id: "TODO" });
 }
 
 function editPost({ routeParams: [id] }: AugmentedRequest) {
-  return textResponse(`You requested to edit the contents of ${id}`);
+  return jsonResponse({ id: "TODO" });
 }
 
 export default createRouteMap([

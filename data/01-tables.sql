@@ -2,7 +2,8 @@ use blogs;
 
 create table if not exists post (
   id binary(16) primary key not null,
-  author_id binary(16),
+  author_id binary(16) not null,
+  title text not null,
   contents text not null
 );
 
