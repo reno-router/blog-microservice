@@ -11,12 +11,12 @@ function createClientOpts() {
 
 interface Author {
   id: string;
-  displayName: string;
+  name: string;
 }
 
 interface Tag {
   id: string;
-  displayName: string;
+  name: string;
 }
 
 interface Post {
@@ -32,8 +32,22 @@ async function createBlogService(Client: typeof MySQLClient) {
   return {
     getPosts: (): Promise<Post[]> =>
       client.query(`
-        select id, author_id, contents from post
-      `),
+        select
+          p.id,
+          p.title,
+          p.contents,
+          a.display_name as author,
+          GROUP_CONCAT(t.display_name) as tags
+
+        from post p
+        join author a
+        on p.author_id = a.id
+        join post_tags pt
+        on p.id = pt.post_id
+        join tag t
+        on t.id = pt.tag_id
+        group by p.id;
+    `),
   };
 }
 
