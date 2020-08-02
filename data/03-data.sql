@@ -76,7 +76,7 @@ begin
   open post_cursor;
 
   insert_posts: loop
-  	fetch post_cursor into pst;
+    fetch post_cursor into pst;
 
     if finished = 1 then
    	  leave insert_posts;
