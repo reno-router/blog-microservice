@@ -79,8 +79,8 @@ begin
     fetch post_cursor into pst;
 
     if finished = 1 then
-   	  leave insert_posts;
-   	end if;
+      leave insert_posts;
+    end if;
 
     insert into post
     values
