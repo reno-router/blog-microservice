@@ -27,31 +27,32 @@ interface Post {
 }
 
 async function createBlogService(Client: typeof DBClient) {
-  const client = new Client(createClientOpts())
+  // TODO: USE POOL
+  const client = new Client(createClientOpts());
 
   await client.connect();
 
   return {
     async getPosts(): Promise<Post[]> {
-      const { rows } = await client.query(`
+      const r = await client.query(`
         select
           p.id,
           p.title,
           p.contents,
-          json_object_agg(a) as author,
-          json_agg(json_object_agg(t)) as tags
+          json_build_object('id', a.id, 'name', a.display_name) as author,
+          json_agg(json_build_object('id', t.id, 'name', t.display_name)) as tags
 
-        from post p
-        join author a
+        from blogs.post p
+        join blogs.author a
         on p.author_id = a.id
-        join post_tags pt
+        join blogs.post_tags pt
         on p.id = pt.post_id
-        join tag t
+        join blogs.tag t
         on t.id = pt.tag_id
-        group by p.id;
+        group by p.id, a.id;
       `);
 
-      return rows;
+      return r.rowsOfObjects() as Post[];
     },
   };
 }
