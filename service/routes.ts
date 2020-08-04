@@ -3,12 +3,12 @@ import {
   jsonResponse,
   AugmentedRequest,
   forMethod,
-  MySQLClient,
+  DBClient,
 } from "../deps.ts";
 
 import createBlogService from "./blog-service.ts";
 
-const blogService = await createBlogService(MySQLClient);
+const blogService = await createBlogService(DBClient);
 
 async function getPosts({ routeParams: [id] }: AugmentedRequest) {
   const posts = await blogService.getPosts();

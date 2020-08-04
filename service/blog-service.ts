@@ -1,11 +1,11 @@
-import type { MySQLClient } from "../deps.ts";
+import type { DBClient } from "../deps.ts";
 
 function createClientOpts() {
   return Object.fromEntries([
-    ["hostname", "MYSQL_HOST"],
-    ["username", "MYSQL_USER"],
-    ["password", "MYSQL_PASSWORD"],
-    ["db", "MYSQL_DATABASE"]
+    ["hostname", "POSTGRES_HOST"],
+    ["user", "POSTGRES_USER"],
+    ["password", "POSTGRES_PASSWORD"],
+    ["database", "POSTGRES_DB"]
   ].map(([key, envVar]) => [key, Deno.env.get(envVar)]));
 }
 
@@ -26,18 +26,20 @@ interface Post {
   contents: string;
 }
 
-async function createBlogService(Client: typeof MySQLClient) {
-  const client = await new Client().connect(createClientOpts());
+async function createBlogService(Client: typeof DBClient) {
+  const client = new Client(createClientOpts())
+
+  await client.connect();
 
   return {
-    getPosts: (): Promise<Post[]> =>
-      client.query(`
+    async getPosts(): Promise<Post[]> {
+      const { rows } = await client.query(`
         select
           p.id,
           p.title,
           p.contents,
-          a.display_name as author,
-          GROUP_CONCAT(t.display_name) as tags
+          json_object_agg(a) as author,
+          json_agg(json_object_agg(t)) as tags
 
         from post p
         join author a
@@ -47,7 +49,10 @@ async function createBlogService(Client: typeof MySQLClient) {
         join tag t
         on t.id = pt.tag_id
         group by p.id;
-    `),
+      `);
+
+      return rows;
+    },
   };
 }
 
