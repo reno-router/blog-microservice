@@ -1,24 +1,25 @@
-use blogs;
+create schema if not exists blogs;
+set schema 'blogs';
 
 create table if not exists post (
-  id varchar(36) primary key not null,
-  author_id varchar(36) not null,
+  id uuid primary key not null,
+  author_id uuid not null,
   title text not null,
   contents text not null
 );
 
 create table if not exists author (
-  id varchar(36) primary key not null,
+  id uuid primary key not null,
   display_name text not null
 );
 
 create table if not exists tag (
-  id varchar(36) primary key not null,
+  id uuid primary key not null,
   display_name text not null
 );
 
 create table if not exists post_tags (
-  id varchar(36) primary key not null,
-  post_id varchar(36) references category(id),
-  tag_id varchar(36) references question(id)
+  id uuid primary key not null,
+  post_id uuid references post(id),
+  tag_id uuid references tag(id)
 );
