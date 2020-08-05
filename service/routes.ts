@@ -36,16 +36,12 @@ async function getPost(id: string) {
 
     return post;
   } catch (e) {
-    throw isUUIDError(e)
-      ? new InvalidUUIDError(id)
-      : e;
+    throw isUUIDError(e) ? new InvalidUUIDError(id) : e;
   }
 }
 
 async function getPosts({ routeParams: [id] }: AugmentedRequest) {
-  const res = id
-    ? await getPost(id)
-    : await blogService.getPosts();
+  const res = id ? await getPost(id) : await blogService.getPosts();
 
   return jsonResponse(res);
 }

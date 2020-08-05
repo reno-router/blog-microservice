@@ -1,8 +1,9 @@
-const buildPostSelectQuery = (where = "", ...additionalFields: string[]) => `
+const buildPostSelectQuery = (where = "", ...additionalFields: string[]) =>
+  `
   select
     p.id,
     p.title,
-    ${[...additionalFields, ''].join(', ')}
+    ${[...additionalFields, ""].join(", ")}
     json_build_object('id', a.id, 'name', a.display_name) as author,
     json_agg(json_build_object('id', t.id, 'name', t.display_name)) as tags
 

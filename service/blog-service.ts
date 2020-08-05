@@ -6,7 +6,7 @@ function createClientOpts() {
     ["hostname", "POSTGRES_HOST"],
     ["user", "POSTGRES_USER"],
     ["password", "POSTGRES_PASSWORD"],
-    ["database", "POSTGRES_DB"]
+    ["database", "POSTGRES_DB"],
   ].map(([key, envVar]) => [key, Deno.env.get(envVar)]));
 }
 
@@ -21,7 +21,7 @@ interface Tag {
 }
 
 interface Post {
-  id: string,
+  id: string;
   author: Author;
   tags: Tag[];
   contents?: string;
@@ -48,7 +48,7 @@ async function createBlogService(Client: typeof DBClient) {
       const [post] = res.rowsOfObjects();
 
       return post as Post;
-    }
+    },
   };
 }
 
