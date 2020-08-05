@@ -6,7 +6,7 @@ import {
   textResponse,
 } from "../deps.ts";
 
-import routes from "./routes.ts";
+import routes, { PostNotFoundError, InvalidUUIDError } from "./routes.ts";
 
 const BINDING = ":8000";
 
@@ -33,7 +33,11 @@ function createErrorResponse(status: number, { message }: Error) {
   };
 }
 
-function notFound(e: NotFoundError) {
+function badRequest(e: Error) {
+  return createErrorResponse(400, e);
+}
+
+function notFound(e: Error) {
   return createErrorResponse(404, e);
 }
 
@@ -42,7 +46,17 @@ function serverError(e: Error) {
 }
 
 function mapToErrorResponse(e: Error) {
-  return e instanceof NotFoundError ? notFound(e) : serverError(e);
+  switch (e.constructor) {
+    case NotFoundError:
+    case PostNotFoundError:
+      return notFound(e);
+
+    case InvalidUUIDError:
+      return badRequest(e);
+
+    default:
+      return serverError(e);
+  }
 }
 
 const router = createRouter(routes);
