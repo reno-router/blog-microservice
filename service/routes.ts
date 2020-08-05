@@ -11,8 +11,11 @@ import createBlogService from "./blog-service.ts";
 const blogService = await createBlogService(DBClient);
 
 async function getPosts({ routeParams: [id] }: AugmentedRequest) {
-  const posts = await blogService.getPosts();
-  return jsonResponse(posts);
+  const res = id
+    ? await blogService.getPost(id)
+    : await blogService.getPosts();
+
+  return jsonResponse(res);
 }
 
 function createPost() {

@@ -1,4 +1,5 @@
 import type { DBClient } from "../deps.ts";
+import { GET_POSTS_QUERY, GET_POST_QUERY } from "./queries.ts";
 
 function createClientOpts() {
   return Object.fromEntries([
@@ -34,26 +35,20 @@ async function createBlogService(Client: typeof DBClient) {
 
   return {
     async getPosts(): Promise<Post[]> {
-      const r = await client.query(`
-        select
-          p.id,
-          p.title,
-          p.contents,
-          json_build_object('id', a.id, 'name', a.display_name) as author,
-          json_agg(json_build_object('id', t.id, 'name', t.display_name)) as tags
-
-        from blogs.post p
-        join blogs.author a
-        on p.author_id = a.id
-        join blogs.post_tags pt
-        on p.id = pt.post_id
-        join blogs.tag t
-        on t.id = pt.tag_id
-        group by p.id, a.id;
-      `);
-
-      return r.rowsOfObjects() as Post[];
+      const res = await client.query(GET_POSTS_QUERY);
+      return res.rowsOfObjects() as Post[];
     },
+
+    async getPost(id: string): Promise<Post> {
+      const res = await client.query({
+        text: GET_POST_QUERY,
+        args: [id],
+      });
+
+      const [post] = res.rowsOfObjects();
+
+      return post as Post;
+    }
   };
 }
 
