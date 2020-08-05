@@ -4,11 +4,19 @@ import {
   AugmentedRequest,
   forMethod,
   DBClient,
+  withJsonBody,
 } from "../deps.ts";
 
 import createBlogService from "./blog-service.ts";
 
 const blogService = await createBlogService(DBClient);
+
+export interface PostPayload {
+  authorId: string;
+  tagIds: string[];
+  title: string
+  contents: string;
+}
 
 export class PostNotFoundError extends Error {
   constructor(id: string) {
@@ -46,9 +54,11 @@ async function getPosts({ routeParams: [id] }: AugmentedRequest) {
   return jsonResponse(res);
 }
 
-function createPost() {
-  return jsonResponse({ id: "TODO" });
-}
+const createPost = withJsonBody<PostPayload>(async function createPost({ body }) {
+  await blogService.addPost(body);
+
+  return jsonResponse({ ok: true }); // TODO: return new DB item?
+});
 
 function editPost({ routeParams: [id] }: AugmentedRequest) {
   return jsonResponse({ id: "TODO" });

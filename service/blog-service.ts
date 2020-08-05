@@ -1,5 +1,6 @@
-import type { DBClient } from "../deps.ts";
-import { GET_POSTS_QUERY, GET_POST_QUERY } from "./queries.ts";
+import { DBClient, uuidv4 } from "../deps.ts";
+import { GET_POSTS_QUERY, GET_POST_QUERY, ADD_POST_QUERY } from "./queries.ts";
+import { PostPayload } from "./routes.ts";
 
 function createClientOpts() {
   return Object.fromEntries([
@@ -20,11 +21,15 @@ interface Tag {
   name: string;
 }
 
-interface Post {
+interface PostMetadata {
   id: string;
   author: Author;
   tags: Tag[];
-  contents?: string;
+  title: string;
+}
+
+interface Post extends PostMetadata {
+  contents: string;
 }
 
 async function createBlogService(Client: typeof DBClient) {
@@ -34,9 +39,9 @@ async function createBlogService(Client: typeof DBClient) {
   await client.connect();
 
   return {
-    async getPosts(): Promise<Post[]> {
+    async getPosts(): Promise<PostMetadata[]> {
       const res = await client.query(GET_POSTS_QUERY);
-      return res.rowsOfObjects() as Post[];
+      return res.rowsOfObjects() as PostMetadata[];
     },
 
     async getPost(id: string): Promise<Post> {
@@ -49,6 +54,18 @@ async function createBlogService(Client: typeof DBClient) {
 
       return post as Post;
     },
+
+    async addPost(post: PostPayload): Promise<void> {
+      const postId = uuidv4.generate();
+      const [addPostQuery, addTagsQuery] = ADD_POST_QUERY;
+
+      const tx: [string, ...(string | string[])[]][] = [
+        [addPostQuery, postId, post.authorId, post.title, post.contents],
+        [addTagsQuery, uuidv4.generate(), postId, post.tagIds],
+      ];
+
+      await client.multiQuery(tx.map(([text, ...args]) => ({ text, args })))
+    }
   };
 }
 

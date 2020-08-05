@@ -1,6 +1,7 @@
 // Recommended as per https://deno.land/std/manual.md#linking-to-third-party-code
 
 export * from "https://deno.land/std@v0.62.0/http/server.ts";
+export { v4 as uuidv4 } from "https://deno.land/std@v0.62.0/uuid/mod.ts";
 export * from "https://deno.land/x/reno@v1.2.1/reno/mod.ts";
 export { Client as DBClient } from "https://deno.land/x/postgres@v0.4.3/mod.ts";
 
