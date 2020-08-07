@@ -33,6 +33,7 @@ export const GET_POST_QUERY = buildSelectPostQuery(
   "p.contents",
 );
 
+// TODO: ADD => CREATE (i.e. CRUD)
 export const ADD_POST_QUERY = [
   `
     insert into blogs.post
@@ -51,3 +52,9 @@ export const ADD_POST_QUERY = [
     (select * from (values ($3::uuid)) post_id) y(post_id);
   `,
 ];
+
+export const EDIT_POST_QUERY = `
+  update blogs.post
+  set contents = $2
+  where id = $1;
+`;

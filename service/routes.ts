@@ -11,11 +11,14 @@ import createBlogService from "./blog-service.ts";
 
 const blogService = await createBlogService(DBClient);
 
-export interface PostPayload {
+export interface EditPostPayload {
+  contents: string;
+}
+
+export interface AddPostPayload extends EditPostPayload {
   authorId: string;
   tagIds: string[];
   title: string;
-  contents: string;
 }
 
 export class PostNotFoundError extends Error {
@@ -49,22 +52,23 @@ async function getPost(id: string) {
 }
 
 async function getPosts({ routeParams: [id] }: AugmentedRequest) {
-  const res = id ? await getPost(id) : await blogService.getPosts();
-
+  const res = await (id ? getPost(id) : blogService.getPosts());
   return jsonResponse(res);
 }
 
-const createPost = withJsonBody<PostPayload>(
+const createPost = withJsonBody<AddPostPayload>(
   async function createPost({ body }) {
     const id = await blogService.addPost(body);
-
     return jsonResponse({ id });
   },
 );
 
-function editPost({ routeParams: [id] }: AugmentedRequest) {
-  return jsonResponse({ id: "TODO" });
-}
+const editPost = withJsonBody<EditPostPayload>(
+  async function editPost({ body: { contents }, routeParams: [id] }) {
+    await blogService.editPost(id, contents);
+    return jsonResponse({ id });
+  },
+);
 
 export default createRouteMap([
   [
@@ -72,7 +76,7 @@ export default createRouteMap([
     forMethod([
       ["GET", getPosts],
       ["POST", createPost],
-      ["PUT", editPost],
+      ["PATCH", editPost],
     ]),
   ],
 ]);

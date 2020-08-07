@@ -1,6 +1,11 @@
 import { DBClient, uuidv4 } from "../deps.ts";
-import { GET_POSTS_QUERY, GET_POST_QUERY, ADD_POST_QUERY } from "./queries.ts";
-import { PostPayload } from "./routes.ts";
+import {
+  GET_POSTS_QUERY,
+  GET_POST_QUERY,
+  ADD_POST_QUERY,
+  EDIT_POST_QUERY,
+} from "./queries.ts";
+import { AddPostPayload } from "./routes.ts";
 
 function createClientOpts() {
   return Object.fromEntries([
@@ -56,17 +61,17 @@ async function createBlogService(Client: typeof DBClient) {
     },
 
     async getPost(id: string): Promise<Post> {
-      const res = await client.query({
-        text: GET_POST_QUERY,
-        args: [id],
-      });
+      const res = await client.query(buildQuery(
+        GET_POST_QUERY,
+        id,
+      ));
 
       const [post] = res.rowsOfObjects();
 
       return post as Post;
     },
 
-    async addPost(post: PostPayload): Promise<string> {
+    async addPost(post: AddPostPayload): Promise<string> {
       const postId = uuidv4.generate();
       const [addPostQuery, addTagsQuery] = ADD_POST_QUERY;
 
@@ -88,6 +93,10 @@ async function createBlogService(Client: typeof DBClient) {
       ]);
 
       return postId;
+    },
+
+    async editPost(id: string, contents: string): Promise<void> {
+      await client.query(buildQuery(EDIT_POST_QUERY, id, contents));
     },
   };
 }
