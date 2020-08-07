@@ -99,6 +99,7 @@ async function createBlogService(Client: typeof DBClient) {
       const { rowCount } = await client.query(
         buildQuery(EDIT_POST_QUERY, id, contents),
       );
+
       return rowCount || 0;
     },
   };
