@@ -15,7 +15,7 @@ export interface EditPostPayload {
   contents: string;
 }
 
-export interface AddPostPayload extends EditPostPayload {
+export interface CreatePostPayload extends EditPostPayload {
   authorId: string;
   tagIds: string[];
   title: string;
@@ -56,9 +56,9 @@ async function getPosts({ routeParams: [id] }: AugmentedRequest) {
   return jsonResponse(res);
 }
 
-const createPost = withJsonBody<AddPostPayload>(
+const createPost = withJsonBody<CreatePostPayload>(
   async function createPost({ body }) {
-    const id = await blogService.addPost(body);
+    const id = await blogService.createPost(body);
     return jsonResponse({ id });
   },
 );

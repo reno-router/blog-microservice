@@ -2,10 +2,10 @@ import { DBClient, uuidv4 } from "../deps.ts";
 import {
   GET_POSTS_QUERY,
   GET_POST_QUERY,
-  ADD_POST_QUERY,
+  CREATE_POST_QUERY,
   EDIT_POST_QUERY,
 } from "./queries.ts";
-import { AddPostPayload } from "./routes.ts";
+import { CreatePostPayload } from "./routes.ts";
 
 function createClientOpts() {
   return Object.fromEntries([
@@ -71,21 +71,21 @@ async function createBlogService(Client: typeof DBClient) {
       return post as Post;
     },
 
-    async addPost(post: AddPostPayload): Promise<string> {
+    async createPost(post: CreatePostPayload): Promise<string> {
       const postId = uuidv4.generate();
-      const [addPostQuery, addTagsQuery] = ADD_POST_QUERY;
+      const [createPostQuery, createTagsQuery] = CREATE_POST_QUERY;
 
       // TODO: does this wrap queries in transactions?
       await client.multiQuery([
         buildQuery(
-          addPostQuery,
+          createPostQuery,
           postId,
           post.authorId,
           post.title,
           post.contents,
         ),
         buildQuery(
-          addTagsQuery,
+          createTagsQuery,
           fillBy(post.tagIds.length, () => uuidv4.generate()),
           post.tagIds,
           postId,

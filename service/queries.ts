@@ -33,8 +33,7 @@ export const GET_POST_QUERY = buildSelectPostQuery(
   "p.contents",
 );
 
-// TODO: ADD => CREATE (i.e. CRUD)
-export const ADD_POST_QUERY = [
+export const CREATE_POST_QUERY = [
   `
     insert into blogs.post
     values
