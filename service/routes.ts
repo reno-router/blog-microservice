@@ -5,6 +5,7 @@ import {
   forMethod,
   DBClient,
   withJsonBody,
+  RouteHandler,
 } from "../deps.ts";
 
 import createBlogService from "./blog-service.ts";
@@ -27,28 +28,35 @@ export class PostNotFoundError extends Error {
   }
 }
 
-export class InvalidUUIDError extends Error {
+export class InvalidUuidError extends Error {
   constructor(id: string) {
-    super(`ID ${id} is not a valid UUID`);
+    super(`ID ${id} is not a valid Uuid`);
   }
 }
 
-function isUUIDError({ message }: Error) {
-  return Boolean(message.match(/^invalid input syntax for type uuid/));
+function isUuidError({ message }: Error) {
+  return Boolean(message.match(/invalid input syntax for type uuid/));
+}
+
+function handleServiceErrors(next: RouteHandler): RouteHandler {
+  return async (req: AugmentedRequest) => {
+    try {
+      return await next(req);
+    } catch (e) {
+      console.log(isUuidError(e));
+      throw isUuidError(e) ? new InvalidUuidError(req.routeParams[0]) : e;
+    }
+  };
 }
 
 async function getPost(id: string) {
-  try {
-    const post = await blogService.getPost(id);
+  const post = await blogService.getPost(id);
 
-    if (!post) {
-      throw new PostNotFoundError(id);
-    }
-
-    return post;
-  } catch (e) {
-    throw isUUIDError(e) ? new InvalidUUIDError(id) : e;
+  if (!post) {
+    throw new PostNotFoundError(id);
   }
+
+  return post;
 }
 
 async function getPosts({ routeParams: [id] }: AugmentedRequest) {
@@ -65,7 +73,12 @@ const createPost = withJsonBody<CreatePostPayload>(
 
 const editPost = withJsonBody<EditPostPayload>(
   async function editPost({ body: { contents }, routeParams: [id] }) {
-    await blogService.editPost(id, contents);
+    const rowCount = await blogService.editPost(id, contents);
+
+    if (rowCount === 0) {
+      throw new PostNotFoundError(id);
+    }
+
     return jsonResponse({ id });
   },
 );
@@ -73,10 +86,12 @@ const editPost = withJsonBody<EditPostPayload>(
 export default createRouteMap([
   [
     "/posts/*",
-    forMethod([
-      ["GET", getPosts],
-      ["POST", createPost],
-      ["PATCH", editPost],
-    ]),
+    handleServiceErrors(
+      forMethod([
+        ["GET", getPosts],
+        ["POST", createPost],
+        ["PATCH", editPost],
+      ]),
+    ),
   ],
 ]);

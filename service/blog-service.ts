@@ -95,8 +95,11 @@ async function createBlogService(Client: typeof DBClient) {
       return postId;
     },
 
-    async editPost(id: string, contents: string): Promise<void> {
-      await client.query(buildQuery(EDIT_POST_QUERY, id, contents));
+    async editPost(id: string, contents: string): Promise<number> {
+      const { rowCount } = await client.query(
+        buildQuery(EDIT_POST_QUERY, id, contents),
+      );
+      return rowCount || 0;
     },
   };
 }

@@ -55,5 +55,5 @@ export const CREATE_POST_QUERY = [
 export const EDIT_POST_QUERY = `
   update blogs.post
   set contents = $2
-  where id = $1;
+  where id = $1::uuid;
 `;

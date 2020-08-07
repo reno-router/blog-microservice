@@ -6,7 +6,7 @@ import {
   textResponse,
 } from "../deps.ts";
 
-import routes, { PostNotFoundError, InvalidUUIDError } from "./routes.ts";
+import routes, { PostNotFoundError, InvalidUuidError } from "./routes.ts";
 
 const BINDING = ":8000";
 
@@ -51,7 +51,7 @@ function mapToErrorResponse(e: Error) {
     case PostNotFoundError:
       return notFound(e);
 
-    case InvalidUUIDError:
+    case InvalidUuidError:
       return badRequest(e);
 
     default:
