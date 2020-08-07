@@ -1,4 +1,5 @@
-const withUuid = (query: string) => `
+const withUuid = (query: string) =>
+  `
   create extension if not exists "uuid-ossp"
   with version "1.1";
 

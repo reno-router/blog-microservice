@@ -15,8 +15,11 @@ function fillBy<T>(n: number, by: () => T) {
   return Array(n).fill(0).map(by);
 }
 
-function asPostgresUuid(uuid: string) {
-  return `${uuid}::uuid`;
+function buildQuery(text: string, ...args: (string | string[])[]) {
+  return {
+    text,
+    args,
+  };
 }
 
 interface Author {
@@ -63,17 +66,29 @@ async function createBlogService(Client: typeof DBClient) {
       return post as Post;
     },
 
-    async addPost(post: PostPayload): Promise<void> {
+    async addPost(post: PostPayload): Promise<string> {
       const postId = uuidv4.generate();
       const [addPostQuery, addTagsQuery] = ADD_POST_QUERY;
 
-      const tx: [string, ...(string | string[])[]][] = [
-        [addPostQuery, postId, post.authorId, post.title, post.contents],
-        [addTagsQuery, fillBy(post.tagIds.length, () => uuidv4.generate()), post.tagIds, postId],
-      ];
+      // TODO: does this wrap queries in transactions?
+      await client.multiQuery([
+        buildQuery(
+          addPostQuery,
+          postId,
+          post.authorId,
+          post.title,
+          post.contents,
+        ),
+        buildQuery(
+          addTagsQuery,
+          fillBy(post.tagIds.length, () => uuidv4.generate()),
+          post.tagIds,
+          postId,
+        ),
+      ]);
 
-      await client.multiQuery(tx.map(([text, ...args]) => ({ text, args })))
-    }
+      return postId;
+    },
   };
 }
 

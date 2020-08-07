@@ -14,7 +14,7 @@ const blogService = await createBlogService(DBClient);
 export interface PostPayload {
   authorId: string;
   tagIds: string[];
-  title: string
+  title: string;
   contents: string;
 }
 
@@ -54,11 +54,13 @@ async function getPosts({ routeParams: [id] }: AugmentedRequest) {
   return jsonResponse(res);
 }
 
-const createPost = withJsonBody<PostPayload>(async function createPost({ body }) {
-  await blogService.addPost(body);
+const createPost = withJsonBody<PostPayload>(
+  async function createPost({ body }) {
+    const id = await blogService.addPost(body);
 
-  return jsonResponse({ ok: true }); // TODO: return new DB item?
-});
+    return jsonResponse({ id });
+  },
+);
 
 function editPost({ routeParams: [id] }: AugmentedRequest) {
   return jsonResponse({ id: "TODO" });
