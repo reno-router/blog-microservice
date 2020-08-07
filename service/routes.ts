@@ -43,7 +43,6 @@ function handleServiceErrors(next: RouteHandler): RouteHandler {
     try {
       return await next(req);
     } catch (e) {
-      console.log(isUuidError(e));
       throw isUuidError(e) ? new InvalidUuidError(req.routeParams[0]) : e;
     }
   };
