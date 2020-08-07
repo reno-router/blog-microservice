@@ -39,11 +39,14 @@ export const ADD_POST_QUERY = [
       ($1, $2, $3, $4);
   `,
   `
-
   insert into blogs.post_tags
-  select tag_id from unnest(array['0e787ec8-5cd6-49fd-8367-aceef6090ea2'::uuid, '64057e1c-1a0a-4658-b3bc-d91678686627'::uuid]) as tag_id
+    (id, tag_id, post_id)
+  select * from
+    unnest(
+   	  $1::uuid[],
+   	  $2::uuid[]
+    ) x (id, tag_id)
   cross join
-  select v
-  from (values 'ce59e9d8-cc4c-4508-ab07-77ce06e74322'::uuid, 'ce59e9d8-cc4c-4508-ab07-77ce06e743e9'::uuid]) as m(v)
+    (select * from (values ($3::uuid)) post_id) y(post_id);
   `,
 ];

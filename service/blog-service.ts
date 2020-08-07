@@ -11,6 +11,14 @@ function createClientOpts() {
   ].map(([key, envVar]) => [key, Deno.env.get(envVar)]));
 }
 
+function fillBy<T>(n: number, by: () => T) {
+  return Array(n).fill(0).map(by);
+}
+
+function asPostgresUuid(uuid: string) {
+  return `${uuid}::uuid`;
+}
+
 interface Author {
   id: string;
   name: string;
@@ -61,7 +69,7 @@ async function createBlogService(Client: typeof DBClient) {
 
       const tx: [string, ...(string | string[])[]][] = [
         [addPostQuery, postId, post.authorId, post.title, post.contents],
-        [addTagsQuery, uuidv4.generate(), postId, post.tagIds],
+        [addTagsQuery, fillBy(post.tagIds.length, () => uuidv4.generate()), post.tagIds, postId],
       ];
 
       await client.multiQuery(tx.map(([text, ...args]) => ({ text, args })))
