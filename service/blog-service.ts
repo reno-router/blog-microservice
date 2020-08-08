@@ -102,7 +102,7 @@ async function createBlogService(Pool: typeof DBPool) {
     },
 
     async editPost(id: string, contents: string): Promise<number> {
-      const { rowCount } = await await runPooledQuery(
+      const { rowCount } = await runPooledQuery(
         EDIT_POST_QUERY,
         id,
         contents,
