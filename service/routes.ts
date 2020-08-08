@@ -5,13 +5,9 @@ import {
   forMethod,
   withJsonBody,
   RouteHandler,
-  DBPool,
 } from "../deps.ts";
 
-import createBlogService from "./blog-service.ts";
-import createDbService from "./db-service.ts";
-
-const blogService = createBlogService(createDbService(DBPool));
+import { BlogService } from "./blog-service.ts";
 
 export interface EditPostPayload {
   contents: string;
@@ -49,7 +45,7 @@ function handleServiceErrors(next: RouteHandler): RouteHandler {
   };
 }
 
-async function getPost(id: string) {
+async function getPost(blogService: BlogService, id: string) {
   const post = await blogService.getPost(id);
 
   if (!post) {
@@ -59,39 +55,49 @@ async function getPost(id: string) {
   return post;
 }
 
-async function getPosts({ routeParams: [id] }: AugmentedRequest) {
-  const res = await (id ? getPost(id) : blogService.getPosts());
-  return jsonResponse(res);
+/* Don't introduce route handler factories
+ * until the end of the article! */
+function createGetPostsHandler(blogService: BlogService) {
+  return async function getPosts({ routeParams: [id] }: AugmentedRequest) {
+    const res = await (id ? getPost(blogService, id) : blogService.getPosts());
+    return jsonResponse(res);
+  };
 }
 
-const createPost = withJsonBody<CreatePostPayload>(
-  async function createPost({ body }) {
-    const id = await blogService.createPost(body);
-    return jsonResponse({ id });
-  },
-);
+function createAddPostHandler(blogService: BlogService) {
+  return withJsonBody<CreatePostPayload>(
+    async function addPost({ body }) {
+      const id = await blogService.createPost(body);
+      return jsonResponse({ id });
+    },
+  );
+}
 
-const editPost = withJsonBody<EditPostPayload>(
-  async function editPost({ body: { contents }, routeParams: [id] }) {
-    const rowCount = await blogService.editPost(id, contents);
+function createEditPostHandler(blogService: BlogService) {
+  return withJsonBody<EditPostPayload>(
+    async function editPost({ body: { contents }, routeParams: [id] }) {
+      const rowCount = await blogService.editPost(id, contents);
 
-    if (rowCount === 0) {
-      throw new PostNotFoundError(id);
-    }
+      if (rowCount === 0) {
+        throw new PostNotFoundError(id);
+      }
 
-    return jsonResponse({ id });
-  },
-);
+      return jsonResponse({ id });
+    },
+  );
+}
 
-export default createRouteMap([
-  [
-    "/posts/*",
-    handleServiceErrors(
-      forMethod([
-        ["GET", getPosts],
-        ["POST", createPost],
-        ["PATCH", editPost],
-      ]),
-    ),
-  ],
-]);
+export default function createRoutes(blogService: BlogService) {
+  return createRouteMap([
+    [
+      "/posts/*",
+      handleServiceErrors(
+        forMethod([
+          ["GET", createGetPostsHandler(blogService)],
+          ["POST", createAddPostHandler(blogService)],
+          ["PATCH", createEditPostHandler(blogService)],
+        ]),
+      ),
+    ],
+  ]);
+}

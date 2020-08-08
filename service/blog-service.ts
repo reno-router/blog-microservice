@@ -85,4 +85,5 @@ function createBlogService(db: DbService) {
   };
 }
 
+export type BlogService = ReturnType<typeof createBlogService>;
 export default createBlogService;
