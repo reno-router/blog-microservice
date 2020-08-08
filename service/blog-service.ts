@@ -1,5 +1,5 @@
 import { DBPool, uuidv4 } from "../deps.ts";
-import createDbService, { buildQuery } from "./db-service.ts";
+import createDbService, { buildQuery, DbService } from "./db-service.ts";
 
 import {
   GET_POSTS_QUERY,
@@ -35,9 +35,7 @@ interface Post extends PostMetadata {
   contents: string;
 }
 
-function createBlogService() {
-  const db = createDbService(DBPool);
-
+function createBlogService(db: DbService) {
   return {
     async getPosts(): Promise<PostMetadata[]> {
       const res = await db.query(GET_POSTS_QUERY);

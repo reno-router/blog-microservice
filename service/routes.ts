@@ -5,11 +5,13 @@ import {
   forMethod,
   withJsonBody,
   RouteHandler,
+  DBPool,
 } from "../deps.ts";
 
 import createBlogService from "./blog-service.ts";
+import createDbService from "./db-service.ts";
 
-const blogService = createBlogService();
+const blogService = createBlogService(createDbService(DBPool));
 
 export interface EditPostPayload {
   contents: string;

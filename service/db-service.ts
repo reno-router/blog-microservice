@@ -20,7 +20,7 @@ export function buildQuery(text: string, ...args: (string | string[])[]) {
   };
 }
 
-export default function createDbService(Pool: typeof DBPool) {
+function createDbService(Pool: typeof DBPool) {
   const dbPool = new Pool(createClientOpts(), getPoolConnectionCount());
 
   return {
@@ -50,3 +50,6 @@ export default function createDbService(Pool: typeof DBPool) {
     },
   };
 }
+
+export type DbService = ReturnType<typeof createDbService>;
+export default createDbService;
