@@ -1,34 +1,17 @@
-import { DBPool, uuidv4, DBPoolClient } from "../deps.ts";
+import { DBPool, uuidv4 } from "../deps.ts";
+import createDbService, { buildQuery } from "./db-service.ts";
+
 import {
   GET_POSTS_QUERY,
   GET_POST_QUERY,
   CREATE_POST_QUERY,
   EDIT_POST_QUERY,
 } from "./queries.ts";
+
 import { CreatePostPayload } from "./routes.ts";
-
-function createClientOpts() {
-  return Object.fromEntries([
-    ["hostname", "POSTGRES_HOST"],
-    ["user", "POSTGRES_USER"],
-    ["password", "POSTGRES_PASSWORD"],
-    ["database", "POSTGRES_DB"],
-  ].map(([key, envVar]) => [key, Deno.env.get(envVar)]));
-}
-
-function getPoolConnectionCount() {
-  return Number.parseInt(Deno.env.get("POSTGRES_POOL_CONNECTIONS") || "1", 10);
-}
 
 function fillBy<T>(n: number, by: () => T) {
   return Array(n).fill(0).map(by);
-}
-
-function buildQuery(text: string, ...args: (string | string[])[]) {
-  return {
-    text,
-    args,
-  };
 }
 
 interface Author {
@@ -52,42 +35,18 @@ interface Post extends PostMetadata {
   contents: string;
 }
 
-async function createBlogService(Pool: typeof DBPool) {
-  const dbPool = new Pool(createClientOpts(), getPoolConnectionCount());
-
-  async function runPooledQuery(query: string, ...args: (string | string[])[]) {
-    const client = await dbPool.connect();
-
-    try {
-      return await client.query(buildQuery(query, ...args));
-    } finally {
-      client.release();
-    }
-  }
-
-  async function tx(cb: (c: DBPoolClient) => Promise<void>) {
-    const client = await dbPool.connect();
-
-    try {
-      await client.query("begin;");
-      await cb(client);
-      await client.query("commit;");
-    } catch (e) {
-      await client.query("rollback;");
-      throw e;
-    } finally {
-      client.release();
-    }
-  }
+// TODO: tidy DI
+function createBlogService(Pool: typeof DBPool) {
+  const db = createDbService(Pool);
 
   return {
     async getPosts(): Promise<PostMetadata[]> {
-      const res = await runPooledQuery(GET_POSTS_QUERY);
+      const res = await db.query(GET_POSTS_QUERY);
       return res.rowsOfObjects() as PostMetadata[];
     },
 
     async getPost(id: string): Promise<Post> {
-      const res = await runPooledQuery(GET_POST_QUERY, id);
+      const res = await db.query(GET_POST_QUERY, id);
       const [post] = res.rowsOfObjects();
 
       return post as Post;
@@ -97,7 +56,7 @@ async function createBlogService(Pool: typeof DBPool) {
       const postId = uuidv4.generate();
       const [createPostQuery, createTagsQuery] = CREATE_POST_QUERY;
 
-      await tx(async (c) => {
+      await db.tx(async (c) => {
         await c.query(buildQuery(
           createPostQuery,
           postId,
@@ -118,7 +77,7 @@ async function createBlogService(Pool: typeof DBPool) {
     },
 
     async editPost(id: string, contents: string): Promise<number> {
-      const { rowCount } = await runPooledQuery(
+      const { rowCount } = await db.query(
         EDIT_POST_QUERY,
         id,
         contents,
