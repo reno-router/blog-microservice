@@ -3,14 +3,13 @@ import {
   jsonResponse,
   AugmentedRequest,
   forMethod,
-  DBPool,
   withJsonBody,
   RouteHandler,
 } from "../deps.ts";
 
 import createBlogService from "./blog-service.ts";
 
-const blogService = await createBlogService(DBPool);
+const blogService = createBlogService();
 
 export interface EditPostPayload {
   contents: string;

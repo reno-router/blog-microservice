@@ -35,9 +35,8 @@ interface Post extends PostMetadata {
   contents: string;
 }
 
-// TODO: tidy DI
-function createBlogService(Pool: typeof DBPool) {
-  const db = createDbService(Pool);
+function createBlogService() {
+  const db = createDbService(DBPool);
 
   return {
     async getPosts(): Promise<PostMetadata[]> {
