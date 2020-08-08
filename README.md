@@ -26,10 +26,10 @@ Adds a new post to the database.
 
 ```json
 {
-	"title": "My new post",
-	"contents": "Here's the content body of my post",
-	"authorId": "<UUID of the author>",
-	"tagIds": ["<Tag UUID>", ..."<Tag UUID>"]
+  "title": "My new post",
+  "contents": "Here's the content body of my post",
+  "authorId": "<UUID of the author>",
+  "tagIds": ["<Tag UUID>", ..."<Tag UUID>"]
 }
 ```
 ### `PATCH /posts/<UUID>`
@@ -40,6 +40,6 @@ Replaces the `contents` property of the post for the given UUID.
 
 ```json
 {
-	"contents": "Here's the updated content body of my post"
+  "contents": "Here's the updated content body of my post"
 }
 ```
