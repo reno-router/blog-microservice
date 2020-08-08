@@ -44,8 +44,8 @@ export const CREATE_POST_QUERY = [
     (id, tag_id, post_id)
   select * from
     unnest(
-   	  $1::uuid[],
-   	  $2::uuid[]
+      $1::uuid[],
+      $2::uuid[]
     ) x (id, tag_id)
   cross join
     (select * from (values ($3::uuid)) post_id) y(post_id);
