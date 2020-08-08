@@ -8,7 +8,7 @@ I will be adding unit tests, CICD, and extending this README over the next week 
 
 You can then invoke one of the below HTTP requests.
 
-## Endpoints
+## Operations
 
 ### `GET /posts`
 
