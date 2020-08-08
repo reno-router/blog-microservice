@@ -1,4 +1,4 @@
-import { DBPool, uuidv4 } from "../deps.ts";
+import { DBPool, uuidv4, DBPoolClient } from "../deps.ts";
 import {
   GET_POSTS_QUERY,
   GET_POST_QUERY,
@@ -65,6 +65,21 @@ async function createBlogService(Pool: typeof DBPool) {
     }
   }
 
+  async function tx(cb: (c: DBPoolClient) => Promise<void>) {
+    const client = await dbPool.connect();
+
+    try {
+      await client.query("begin;");
+      await cb(client);
+      await client.query("commit;");
+    } catch (e) {
+      await client.query("rollback;");
+      throw e;
+    } finally {
+      client.release();
+    }
+  }
+
   return {
     async getPosts(): Promise<PostMetadata[]> {
       const res = await runPooledQuery(GET_POSTS_QUERY);
@@ -82,21 +97,22 @@ async function createBlogService(Pool: typeof DBPool) {
       const postId = uuidv4.generate();
       const [createPostQuery, createTagsQuery] = CREATE_POST_QUERY;
 
-      // TODO: investigate transactions!
-      await runPooledQuery(
-        createPostQuery,
-        postId,
-        post.authorId,
-        post.title,
-        post.contents,
-      );
+      await tx(async (c) => {
+        await c.query(buildQuery(
+          createPostQuery,
+          postId,
+          post.authorId,
+          post.title,
+          post.contents,
+        ));
 
-      await runPooledQuery(
-        createTagsQuery,
-        fillBy(post.tagIds.length, () => uuidv4.generate()),
-        post.tagIds,
-        postId,
-      );
+        await c.query(buildQuery(
+          createTagsQuery,
+          fillBy(post.tagIds.length, () => uuidv4.generate()),
+          post.tagIds,
+          postId,
+        ));
+      });
 
       return postId;
     },
