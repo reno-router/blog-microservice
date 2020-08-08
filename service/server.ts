@@ -63,7 +63,6 @@ function mapToErrorResponse(e: Error) {
 }
 
 const blogService = createBlogService(createDbService(DBPool));
-
 const router = createRouter(createRoutes(blogService));
 
 console.log(`Listening for requests on ${BINDING}...`);
