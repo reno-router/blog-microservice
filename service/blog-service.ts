@@ -1,4 +1,4 @@
-import { DBClient, uuidv4 } from "../deps.ts";
+import { DBPool, uuidv4 } from "../deps.ts";
 import {
   GET_POSTS_QUERY,
   GET_POST_QUERY,
@@ -14,6 +14,10 @@ function createClientOpts() {
     ["password", "POSTGRES_PASSWORD"],
     ["database", "POSTGRES_DB"],
   ].map(([key, envVar]) => [key, Deno.env.get(envVar)]));
+}
+
+function getPoolConnectionCount() {
+  return Number.parseInt(Deno.env.get("POSTGRES_POOL_CONNECTIONS") || "1", 10);
 }
 
 function fillBy<T>(n: number, by: () => T) {
@@ -48,24 +52,27 @@ interface Post extends PostMetadata {
   contents: string;
 }
 
-async function createBlogService(Client: typeof DBClient) {
-  // TODO: USE POOL
-  const client = new Client(createClientOpts());
+async function createBlogService(Pool: typeof DBPool) {
+  const dbPool = new Pool(createClientOpts(), getPoolConnectionCount());
 
-  await client.connect();
+  async function runPooledQuery(query: string, ...args: (string | string[])[]) {
+    const client = await dbPool.connect();
+
+    try {
+      return await client.query(buildQuery(query, ...args));
+    } finally {
+      client.release();
+    }
+  }
 
   return {
     async getPosts(): Promise<PostMetadata[]> {
-      const res = await client.query(GET_POSTS_QUERY);
+      const res = await runPooledQuery(GET_POSTS_QUERY);
       return res.rowsOfObjects() as PostMetadata[];
     },
 
     async getPost(id: string): Promise<Post> {
-      const res = await client.query(buildQuery(
-        GET_POST_QUERY,
-        id,
-      ));
-
+      const res = await runPooledQuery(GET_POST_QUERY, id);
       const [post] = res.rowsOfObjects();
 
       return post as Post;
@@ -75,29 +82,30 @@ async function createBlogService(Client: typeof DBClient) {
       const postId = uuidv4.generate();
       const [createPostQuery, createTagsQuery] = CREATE_POST_QUERY;
 
-      // TODO: does this wrap queries in transactions?
-      await client.multiQuery([
-        buildQuery(
-          createPostQuery,
-          postId,
-          post.authorId,
-          post.title,
-          post.contents,
-        ),
-        buildQuery(
-          createTagsQuery,
-          fillBy(post.tagIds.length, () => uuidv4.generate()),
-          post.tagIds,
-          postId,
-        ),
-      ]);
+      // TODO: investigate transactions!
+      await runPooledQuery(
+        createPostQuery,
+        postId,
+        post.authorId,
+        post.title,
+        post.contents,
+      );
+
+      await runPooledQuery(
+        createTagsQuery,
+        fillBy(post.tagIds.length, () => uuidv4.generate()),
+        post.tagIds,
+        postId,
+      );
 
       return postId;
     },
 
     async editPost(id: string, contents: string): Promise<number> {
-      const { rowCount } = await client.query(
-        buildQuery(EDIT_POST_QUERY, id, contents),
+      const { rowCount } = await await runPooledQuery(
+        EDIT_POST_QUERY,
+        id,
+        contents,
       );
 
       return rowCount || 0;
