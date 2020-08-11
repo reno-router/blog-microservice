@@ -1,5 +1,5 @@
 import { DBPool, uuidv4 } from "../deps.ts";
-import createDbService, { buildQuery, DbService } from "./db-service.ts";
+import createDbService, { buildQuery, DbService } from "./db_service.ts";
 
 import {
   GET_POSTS_QUERY,

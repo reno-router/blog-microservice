@@ -7,8 +7,8 @@ import {
   DBPool,
 } from "../deps.ts";
 
-import createBlogService from "./blog-service.ts";
-import createDbService from "./db-service.ts";
+import createBlogService from "./blog_service.ts";
+import createDbService from "./db_service.ts";
 import createRoutes, { PostNotFoundError, InvalidUuidError } from "./routes.ts";
 
 const BINDING = ":8000";

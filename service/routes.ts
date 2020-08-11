@@ -7,7 +7,7 @@ import {
   RouteHandler,
 } from "../deps.ts";
 
-import { BlogService } from "./blog-service.ts";
+import { BlogService } from "./blog_service.ts";
 
 export interface EditPostPayload {
   contents: string;

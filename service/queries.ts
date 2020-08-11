@@ -1,11 +1,3 @@
-const withUuid = (query: string) =>
-  `
-  create extension if not exists "uuid-ossp"
-  with version "1.1";
-
-  ${query}
-`;
-
 const buildSelectPostQuery = (where = "", ...additionalFields: string[]) =>
   `
   select
