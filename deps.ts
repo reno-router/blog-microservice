@@ -2,11 +2,18 @@
 
 export * from "https://deno.land/std@v0.62.0/http/server.ts";
 export { v4 as uuidv4 } from "https://deno.land/std@v0.62.0/uuid/mod.ts";
+export * from "https://deno.land/std@v0.62.0/testing/asserts.ts";
 export * from "https://deno.land/x/reno@v1.2.1/reno/mod.ts";
 export { Pool as DBPool } from "https://deno.land/x/postgres@v0.4.3/mod.ts";
-export { PoolClient as DBPoolClient } from "https://deno.land/x/postgres@v0.4.3/client.ts"
+export { PoolClient as DBPoolClient } from "https://deno.land/x/postgres@v0.4.3/client.ts";
 
-import __jsTestDouble from "https://dev.jspm.io/testdouble@3.16.0";
-import * as TestDouble from "https://raw.githubusercontent.com/testdouble/testdouble.js/ecd90efe4649b287c33831a7b94a8a5eb96b8ed0/index.d.ts";
-export const testdouble: typeof TestDouble =
-  __jsTestDouble as typeof TestDouble;
+// import * as __jsSinon from 'https://jspm.dev/sinon@9.0.3';
+// import * as Sinon from "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/3e69dd6158baad145f2eaf1f44492d407a24ce5e/types/sinon/index.d.ts";
+// export const sinon: typeof Sinon = __jsSinon;
+
+// TODO: explain why not using ?dts
+import * as __jsSinon from "https://cdn.skypack.dev/sinon@9.0.3";
+import { SinonSandbox } from "./types/sinon.d.ts";
+
+export const sinon: Omit<SinonSandbox, "clock" | "requests" | "server"> =
+  __jsSinon;

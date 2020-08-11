@@ -14,20 +14,15 @@ function fillBy<T>(n: number, by: () => T) {
   return Array(n).fill(0).map(by);
 }
 
-interface Author {
-  id: string;
-  name: string;
-}
-
-interface Tag {
+interface Entity {
   id: string;
   name: string;
 }
 
 interface PostMetadata {
   id: string;
-  author: Author;
-  tags: Tag[];
+  author: Entity;
+  tags: Entity[];
   title: string;
 }
 

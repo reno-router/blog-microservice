@@ -45,7 +45,7 @@ function handleServiceErrors(next: RouteHandler): RouteHandler {
   };
 }
 
-async function getPost(blogService: BlogService, id: string) {
+async function getPost(blogService: Pick<BlogService, "getPost">, id: string) {
   const post = await blogService.getPost(id);
 
   if (!post) {
@@ -57,8 +57,12 @@ async function getPost(blogService: BlogService, id: string) {
 
 /* Don't introduce route handler factories
  * until the end of the article! */
-function createGetPostsHandler(blogService: BlogService) {
-  return async function getPosts({ routeParams: [id] }: AugmentedRequest) {
+export function createGetPostsHandler(
+  blogService: Pick<BlogService, "getPosts" | "getPost">,
+) {
+  return async function getPosts(
+    { routeParams: [id] }: Pick<AugmentedRequest, "routeParams">,
+  ) {
     const res = await (id ? getPost(blogService, id) : blogService.getPosts());
     return jsonResponse(res);
   };
