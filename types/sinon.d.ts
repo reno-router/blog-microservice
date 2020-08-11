@@ -1,4 +1,10 @@
-// TODO: EXPLAIN!
+/* These are the types from DefinitelyTyped/Skypack, but
+ * for now we have to include a modified version as the
+ * source truth contains a Node.js-style import path for
+ * @sinonjs/fake-timers; this version uses a direct
+ * import from GitHub instead.
+ *
+ * TODO: remove this in favour of Skypack types when possible */
 
 // Type definitions for Sinon 9.0
 // Project: https://sinonjs.org
