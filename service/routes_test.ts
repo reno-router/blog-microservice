@@ -6,7 +6,7 @@ import {
 } from "../deps.ts";
 
 import { createGetPostsHandler } from "./routes.ts";
-import test from "./test-utils.ts";
+import test from "./test_utils.ts";
 
 test(
   "getPosts route handler should call retrieve the post for the given ID from the blog service",
