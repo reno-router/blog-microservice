@@ -6,7 +6,7 @@ I will be adding unit tests, CICD, and extending this README over the next week 
 
 2. `$ docker-compose up`
 
-You can then invoke one of the below HTTP requests.
+You can then invoke one of the following HTTP requests, or run the unit tests with `deno test`.
 
 ## Operations
 
