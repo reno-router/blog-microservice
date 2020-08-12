@@ -8,7 +8,7 @@ import {
 } from "../deps.ts";
 
 import { BlogService } from "./blog_service.ts";
-
+import { ProcessedRequest } from "https://deno.land/x/reno@v1.2.1/reno/helpers.ts";
 export interface EditPostPayload {
   contents: string;
 }
@@ -55,8 +55,14 @@ async function getPost(blogService: Pick<BlogService, "getPost">, id: string) {
   return post;
 }
 
-/* Don't introduce route handler factories
- * until the end of the article! */
+/* Using Pick<BlogService, U> allows us to
+ * provide an implementation of BlogService with
+ * a subset (U) of methods; this is useful for our
+ * unit tests as we don't have to define every single
+ * method to test handlers that don't need them
+ *
+ * TODO: Don't introduce route handler factories
+ * or Pick<T> until the end of the article! */
 export function createGetPostsHandler(
   blogService: Pick<BlogService, "getPosts" | "getPost">,
 ) {
@@ -68,27 +74,23 @@ export function createGetPostsHandler(
   };
 }
 
-function createAddPostHandler(blogService: BlogService) {
-  return withJsonBody<CreatePostPayload>(
-    async function addPost({ body }) {
-      const id = await blogService.createPost(body);
-      return jsonResponse({ id });
-    },
-  );
+export function createAddPostHandler(blogService: Pick<BlogService, "createPost">) {
+  return async function addPost({ body }: Pick<ProcessedRequest<CreatePostPayload>, "body">) {
+    const id = await blogService.createPost(body);
+    return jsonResponse({ id });
+  };
 }
 
 function createEditPostHandler(blogService: BlogService) {
-  return withJsonBody<EditPostPayload>(
-    async function editPost({ body: { contents }, routeParams: [id] }) {
-      const rowCount = await blogService.editPost(id, contents);
+  return async function editPost({ body: { contents }, routeParams: [id] }: Pick<ProcessedRequest<EditPostPayload>, "body" | "routeParams">) {
+    const rowCount = await blogService.editPost(id, contents);
 
-      if (rowCount === 0) {
-        throw new PostNotFoundError(id);
-      }
+    if (rowCount === 0) {
+      throw new PostNotFoundError(id);
+    }
 
-      return jsonResponse({ id });
-    },
-  );
+    return jsonResponse({ id });
+  };
 }
 
 export default function createRoutes(blogService: BlogService) {
@@ -98,8 +100,8 @@ export default function createRoutes(blogService: BlogService) {
       handleServiceErrors(
         forMethod([
           ["GET", createGetPostsHandler(blogService)],
-          ["POST", createAddPostHandler(blogService)],
-          ["PATCH", createEditPostHandler(blogService)],
+          ["POST", withJsonBody<CreatePostPayload>(createAddPostHandler(blogService))],
+          ["PATCH", withJsonBody<EditPostPayload>(createEditPostHandler(blogService))],
         ]),
       ),
     ],

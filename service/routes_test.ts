@@ -3,11 +3,12 @@ import {
   jsonResponse,
   assertResponsesAreEqual,
   assertStrictEquals,
+  assertThrowsAsync,
 } from "../deps.ts";
 
-import { createGetPostsHandler, PostNotFoundError } from "./routes.ts";
+import { createGetPostsHandler, PostNotFoundError, createAddPostHandler } from "./routes.ts";
+
 import test from "./test_utils.ts";
-import { assertThrowsAsync } from "https://deno.land/std@0.62.0/testing/asserts.ts";
 
 test(
   "getPosts route handler should retrieve all posts when an ID isn't provided in the route params",
@@ -89,4 +90,25 @@ test("getPosts route handler should reject with a PostNotFound error if the prov
 
   assertStrictEquals(blogService.getPost.callCount, 1);
   assertStrictEquals(blogService.getPosts.callCount, 0);
+});
+
+test("addPosts route handler should forward the post body to the blog service and return the ID", async () => {
+  const id = "ID";
+
+  const postPayload = {
+    authorId: "author ID",
+    tagIds: ["tag 1 ID", "tag 2 ID"],
+    title: "My Post",
+    contents: "The body",
+  };
+
+  const blogService = {
+    createPost: sinon.stub().resolves(id),
+  };
+
+  const addPost = createAddPostHandler(blogService);
+  const response = await addPost({ body: postPayload });
+
+  assertResponsesAreEqual(response, jsonResponse({ id }));
+  assertStrictEquals(blogService.createPost.callCount, 1);
 });
