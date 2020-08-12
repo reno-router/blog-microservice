@@ -6,7 +6,12 @@ import {
   assertThrowsAsync,
 } from "../deps.ts";
 
-import { createGetPostsHandler, PostNotFoundError, createAddPostHandler } from "./routes.ts";
+import {
+  createGetPostsHandler,
+  PostNotFoundError,
+  createAddPostHandler,
+  createEditPostHandler,
+} from "./routes.ts";
 
 import test from "./test_utils.ts";
 
@@ -92,7 +97,7 @@ test("getPosts route handler should reject with a PostNotFound error if the prov
   assertStrictEquals(blogService.getPosts.callCount, 0);
 });
 
-test("addPosts route handler should forward the post body to the blog service and return the ID", async () => {
+test("addPost route handler should add the post and return the ID", async () => {
   const id = "ID";
 
   const postPayload = {
@@ -111,4 +116,42 @@ test("addPosts route handler should forward the post body to the blog service an
 
   assertResponsesAreEqual(response, jsonResponse({ id }));
   assertStrictEquals(blogService.createPost.callCount, 1);
+});
+
+test("editPost route handler should edit the post for the given ID and return said ID", async () => {
+  const id = "ID";
+
+  const editPayload = {
+    contents: "Updated contents",
+  };
+
+  const blogService = {
+    editPost: sinon.stub().resolves(1),
+  };
+
+  const editPost = createEditPostHandler(blogService);
+  const response = await editPost({ body: editPayload, routeParams: [id] });
+
+  assertResponsesAreEqual(response, jsonResponse({ id }));
+  assertStrictEquals(blogService.editPost.callCount, 1);
+});
+
+test("editPost route handler should reject with a PostNotFound error if a post for the given ID can't be found", async () => {
+  const id = "nope";
+
+  const editPayload = {
+    contents: "Updated contents",
+  };
+
+  const blogService = {
+    editPost: sinon.stub().resolves(0),
+  };
+
+  const editPost = createEditPostHandler(blogService);
+
+  await assertThrowsAsync(
+    () => editPost({ body: editPayload, routeParams: [id] }),
+    PostNotFoundError,
+    id,
+  );
 });

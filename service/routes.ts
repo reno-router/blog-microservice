@@ -74,15 +74,26 @@ export function createGetPostsHandler(
   };
 }
 
-export function createAddPostHandler(blogService: Pick<BlogService, "createPost">) {
-  return async function addPost({ body }: Pick<ProcessedRequest<CreatePostPayload>, "body">) {
+export function createAddPostHandler(
+  blogService: Pick<BlogService, "createPost">,
+) {
+  return async function addPost(
+    { body }: Pick<ProcessedRequest<CreatePostPayload>, "body">,
+  ) {
     const id = await blogService.createPost(body);
     return jsonResponse({ id });
   };
 }
 
-function createEditPostHandler(blogService: BlogService) {
-  return async function editPost({ body: { contents }, routeParams: [id] }: Pick<ProcessedRequest<EditPostPayload>, "body" | "routeParams">) {
+export function createEditPostHandler(
+  blogService: Pick<BlogService, "editPost">,
+) {
+  return async function editPost(
+    { body: { contents }, routeParams: [id] }: Pick<
+      ProcessedRequest<EditPostPayload>,
+      "body" | "routeParams"
+    >,
+  ) {
     const rowCount = await blogService.editPost(id, contents);
 
     if (rowCount === 0) {
@@ -100,8 +111,14 @@ export default function createRoutes(blogService: BlogService) {
       handleServiceErrors(
         forMethod([
           ["GET", createGetPostsHandler(blogService)],
-          ["POST", withJsonBody<CreatePostPayload>(createAddPostHandler(blogService))],
-          ["PATCH", withJsonBody<EditPostPayload>(createEditPostHandler(blogService))],
+          [
+            "POST",
+            withJsonBody<CreatePostPayload>(createAddPostHandler(blogService)),
+          ],
+          [
+            "PATCH",
+            withJsonBody<EditPostPayload>(createEditPostHandler(blogService)),
+          ],
         ]),
       ),
     ],
