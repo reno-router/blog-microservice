@@ -6,7 +6,7 @@
  * some sort of timer that's never cleared. This
  * function reduces the boilerplate of manually
  * specifying the full-form Deno.test() object
- * arg for each test with the sanitize* props
+ * arg for each test with the sanitizeOps prop
  * set to `false`.
  *
  * https://deno.land/manual/testing#resource-and-async-op-sanitizers
@@ -20,7 +20,6 @@ export default function test(
   Deno.test({
     name,
     fn,
-    sanitizeResources: false,
     sanitizeOps: false,
   });
 }
