@@ -1,5 +1,7 @@
 # Blog Microservice
 
+![CI](https://github.com/reno-router/blog-microservice/workflows/CI/badge.svg?branch=master)
+
 I will be adding unit tests, CICD, and extending this README over the next week (as of 8th August), but to run the service:
 
 1. [install Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) if you haven't already
