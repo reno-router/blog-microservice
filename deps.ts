@@ -13,6 +13,8 @@ export { PoolClient as DBPoolClient } from "https://deno.land/x/postgres@v0.4.3/
  * at the moment due to the issue described
  * at the head of ./types/sinon.d.ts */
 import * as __jsSinon from "https://cdn.skypack.dev/sinon@9.0.3";
+
+export { SinonStub } from "./types/sinon.d.ts";
 import { SinonSandbox } from "./types/sinon.d.ts";
 
 export const sinon: Omit<SinonSandbox, "clock" | "requests" | "server"> =

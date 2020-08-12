@@ -4,14 +4,17 @@ import {
   assertStrictEquals,
   assertThrowsAsync,
   assert,
+  SinonStub,
 } from "../deps.ts";
 
 import test from "./test_utils.ts";
 import createDbService, { buildQuery } from "./db_service.ts";
 
-function createPool(queryResult: {} | Error) {
+function createPool(queryResult: {} | Error, resultForCall = 0) {
   const client = {
-    query: sinon.stub()[queryResult instanceof Error ? "rejects" : "resolves"](
+    query: sinon.stub().onCall(
+      resultForCall,
+    )[queryResult instanceof Error ? "rejects" : "resolves"](
       queryResult,
     ),
     release: sinon.stub(),
@@ -24,7 +27,13 @@ function createPool(queryResult: {} | Error) {
   return [dbPool, client] as const;
 }
 
-test("dbService.query should retrieve a client from the pool, invoke a query against it, and the release it", async () => {
+function getQueryStatements(client: { query: SinonStub }) {
+  return client.query.getCalls().map(({ args: [statement] }) =>
+    statement as string
+  );
+}
+
+test("dbService.query() should retrieve a client from the pool, invoke a query against it, and the release it", async () => {
   const query = "select foo from bar where x = $1";
   const args = ["y"];
 
@@ -47,7 +56,7 @@ test("dbService.query should retrieve a client from the pool, invoke a query aga
   );
 });
 
-test("dbService.query should still release the connection if the query throws an error", async () => {
+test("dbService.query() should still release the connection if the query throws an error", async () => {
   const query = "select foo from bar where x = $1";
   const args = ["y"];
 
@@ -61,4 +70,53 @@ test("dbService.query should still release the connection if the query throws an
   );
 
   assertStrictEquals(client.release.callCount, 1);
+});
+
+test("dbService.tx() should wrap any inner queries with 'begin' and 'commit' statements", async () => {
+  const query = "select foo from bar;";
+
+  const queryResult = {
+    id: "foo",
+  };
+
+  const [dbPool, client] = createPool(queryResult);
+  const dbService = createDbService(dbPool);
+
+  await dbService.tx(async (c) => {
+    await c.query(query);
+  });
+
+  assertStrictEquals(dbPool.connect.callCount, 1);
+  assertStrictEquals(client.release.callCount, 1);
+
+  assertEquals(getQueryStatements(client), [
+    "begin;",
+    query,
+    "commit;",
+  ]);
+});
+
+test("dbService.tx() should rollback transactions when an error is thrown, still releasing the connection", async () => {
+  const query = "select foo from bar;";
+
+  const [dbPool, client] = createPool(new Error("no"), 1);
+  const dbService = createDbService(dbPool);
+
+  await assertThrowsAsync(
+    () =>
+      dbService.tx(async (c) => {
+        await c.query(query);
+      }),
+    Error,
+    "no",
+  );
+
+  assertStrictEquals(dbPool.connect.callCount, 1);
+  assertStrictEquals(client.release.callCount, 1);
+
+  assertEquals(getQueryStatements(client), [
+    "begin;",
+    query,
+    "rollback;",
+  ]);
 });
