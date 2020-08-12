@@ -5,9 +5,9 @@ import {
   assertStrictEquals,
 } from "../deps.ts";
 
-import { createGetPostsHandler } from "./routes.ts";
+import { createGetPostsHandler, PostNotFoundError } from "./routes.ts";
 import test from "./test_utils.ts";
-
+import { assertThrowsAsync } from "https://deno.land/std@0.62.0/testing/asserts.ts";
 test(
   "getPosts route handler should call retrieve the post for the given ID from the blog service",
   async () => {
@@ -39,3 +39,23 @@ test(
     assertStrictEquals(blogService.getPosts.callCount, 0);
   },
 );
+
+test("getPosts route handler should reject with a PostNotFound error if the provided ID cannot be found", async () => {
+  const id = "nope";
+
+  const blogService = {
+    getPost: sinon.stub().resolves(),
+    getPosts: sinon.stub().resolves(),
+  };
+
+  const getPosts = createGetPostsHandler(blogService);
+
+  await assertThrowsAsync(
+    () => getPosts({ routeParams: [id] }),
+    PostNotFoundError,
+    id,
+  );
+
+  assertStrictEquals(blogService.getPost.callCount, 1);
+  assertStrictEquals(blogService.getPosts.callCount, 0);
+});
