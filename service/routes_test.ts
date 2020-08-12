@@ -8,8 +8,39 @@ import {
 import { createGetPostsHandler, PostNotFoundError } from "./routes.ts";
 import test from "./test_utils.ts";
 import { assertThrowsAsync } from "https://deno.land/std@0.62.0/testing/asserts.ts";
+
 test(
-  "getPosts route handler should call retrieve the post for the given ID from the blog service",
+  "getPosts route handler should retrieve all posts when an ID isn't provided in the route params",
+  async () => {
+    const posts = ["1", "2"].map((id) => ({
+      id,
+      title: `Test Post ${id}`,
+      author: {
+        id: "author ID",
+        name: "James Wright",
+      },
+      tags: [
+        { id: "tag ID", name: "JavaScript" },
+        { id: "tag ID", name: "TypeScript" },
+      ],
+    }));
+
+    const blogService = {
+      getPosts: sinon.stub().resolves(posts),
+      getPost: sinon.stub().resolves(),
+    };
+
+    const getPosts = createGetPostsHandler(blogService);
+    const response = await getPosts({ routeParams: [] });
+
+    assertResponsesAreEqual(response, jsonResponse(posts));
+    assertStrictEquals(blogService.getPost.callCount, 0);
+    assertStrictEquals(blogService.getPosts.callCount, 1);
+  },
+);
+
+test(
+  "getPosts route handler should retrieve the post for the given ID from the blog service",
   async () => {
     const id = "post ID";
 
