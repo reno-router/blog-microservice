@@ -1,18 +1,5 @@
 import { DBPool, DBPoolClient } from "../deps.ts";
 
-function createClientOpts() {
-  return Object.fromEntries([
-    ["hostname", "POSTGRES_HOST"],
-    ["user", "POSTGRES_USER"],
-    ["password", "POSTGRES_PASSWORD"],
-    ["database", "POSTGRES_DB"],
-  ].map(([key, envVar]) => [key, Deno.env.get(envVar)]));
-}
-
-function getPoolConnectionCount() {
-  return Number.parseInt(Deno.env.get("POSTGRES_POOL_CONNECTIONS") || "1", 10);
-}
-
 export function buildQuery(text: string, ...args: (string | string[])[]) {
   return {
     text,
@@ -20,9 +7,7 @@ export function buildQuery(text: string, ...args: (string | string[])[]) {
   };
 }
 
-function createDbService(Pool: typeof DBPool) {
-  const dbPool = new Pool(createClientOpts(), getPoolConnectionCount());
-
+function createDbService(dbPool: Pick<DBPool, "connect">) {
   return {
     async query(query: string, ...args: (string | string[])[]) {
       const client = await dbPool.connect();

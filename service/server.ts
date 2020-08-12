@@ -13,6 +13,21 @@ import createRoutes, { PostNotFoundError, InvalidUuidError } from "./routes.ts";
 
 const BINDING = ":8000";
 
+function createClientOpts() {
+  return Object.fromEntries([
+    ["hostname", "POSTGRES_HOST"],
+    ["user", "POSTGRES_USER"],
+    ["password", "POSTGRES_PASSWORD"],
+    ["database", "POSTGRES_DB"],
+  ].map(([key, envVar]) => [key, Deno.env.get(envVar)]));
+}
+
+function getPoolConnectionCount() {
+  return Number.parseInt(Deno.env.get("POSTGRES_POOL_CONNECTIONS") || "1", 10);
+}
+
+const dbPool = new DBPool(createClientOpts(), getPoolConnectionCount());
+
 function formatDate(date: Date) {
   return date.toLocaleDateString("en-GB", {
     year: "numeric",
@@ -62,7 +77,7 @@ function mapToErrorResponse(e: Error) {
   }
 }
 
-const blogService = createBlogService(createDbService(DBPool));
+const blogService = createBlogService(createDbService(dbPool));
 const router = createRouter(createRoutes(blogService));
 
 console.log(`Listening for requests on ${BINDING}...`);
