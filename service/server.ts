@@ -5,6 +5,7 @@ import {
   NotFoundError,
   textResponse,
   DBPool,
+  uuidv4,
 } from "../deps.ts";
 
 import createBlogService from "./blog_service.ts";
@@ -77,7 +78,11 @@ function mapToErrorResponse(e: Error) {
   }
 }
 
-const blogService = createBlogService(createDbService(dbPool));
+const blogService = createBlogService(
+  createDbService(dbPool),
+  uuidv4.generate,
+);
+
 const router = createRouter(createRoutes(blogService));
 
 console.log(`Listening for requests on ${BINDING}...`);

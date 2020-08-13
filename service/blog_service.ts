@@ -30,7 +30,7 @@ interface Post extends PostMetadata {
   contents: string;
 }
 
-function createBlogService(db: DbService) {
+function createBlogService(db: DbService, getUuid: () => string) {
   return {
     async getPosts(): Promise<PostMetadata[]> {
       const res = await db.query(GET_POSTS_QUERY);
@@ -45,7 +45,7 @@ function createBlogService(db: DbService) {
     },
 
     async createPost(post: CreatePostPayload): Promise<string> {
-      const postId = uuidv4.generate();
+      const postId = getUuid();
       const [createPostQuery, createTagsQuery] = CREATE_POST_QUERY;
 
       await db.tx(async (c) => {
@@ -59,7 +59,7 @@ function createBlogService(db: DbService) {
 
         await c.query(buildQuery(
           createTagsQuery,
-          fillBy(post.tagIds.length, () => uuidv4.generate()),
+          fillBy(post.tagIds.length, getUuid),
           post.tagIds,
           postId,
         ));

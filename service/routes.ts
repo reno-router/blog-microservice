@@ -27,7 +27,7 @@ export class PostNotFoundError extends Error {
 
 export class InvalidUuidError extends Error {
   constructor(id: string) {
-    super(`ID ${id} is not a valid Uuid`);
+    super(`ID ${id} is not a valid UUID`);
   }
 }
 

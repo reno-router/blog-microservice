@@ -19,7 +19,7 @@ function createDbService(dbPool: Pick<DBPool, "connect">) {
       }
     },
 
-    async tx(cb: (c: DBPoolClient) => Promise<void>) {
+    async tx(cb: (c: Pick<DBPoolClient, "query">) => Promise<void>) {
       const client = await dbPool.connect();
 
       try {
