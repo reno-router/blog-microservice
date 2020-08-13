@@ -51,7 +51,7 @@ begin
   insert into posts_data
   values
     (
-      uuid_generate_v4(),
+      '16f9d2b0-baf9-4618-a230-d9b95ab75fa8',
       james_id,
       'Deno 1.2.1 released',
       'Blog content here!',
