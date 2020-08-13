@@ -1,6 +1,6 @@
 # Blog Microservice
 
-![CI](https://github.com/reno-router/blog-microservice/workflows/CI/badge.svg?branch=master)
+[![CI](https://github.com/reno-router/blog-microservice/workflows/CI/badge.svg?branch=master)](https://github.com/reno-router/blog-microservice/actions?query=workflow%3ACI)
 
 I will be adding unit tests, CICD, and extending this README over the next week (as of 8th August), but to run the service:
 
