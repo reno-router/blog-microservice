@@ -53,13 +53,22 @@ begin
     (
       '16f9d2b0-baf9-4618-a230-d9b95ab75fa8',
       james_id,
-      'Deno 1.2.1 released',
-      'Blog content here!',
+      'Deno 1.3.0 released',
+      'This release includes new flags to various Deno commands and implements the W3C FileReader API, amongst other enhancements and fixes.',
       array[
         javascript_id,
         typescript_id,
         deno_id,
         rust_id
+      ]
+    ),
+    (
+      '006a8213-8aac-47e2-b728-b0e2c07ddaf6',
+      joe_id,
+      'Go''s generics experimentation tool',
+      'To help decide how to further refine the recent Go generics design draft, the Go team is releasing a translation tool, which will permit devs to type check and run code written using the version of generics described in said draft.',
+      array[
+        go_id
       ]
     );
 
