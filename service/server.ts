@@ -1,33 +1,9 @@
 import {
   ServerRequest,
-  listenAndServe,
-  createRouter,
-  NotFoundError,
   textResponse,
-  DBPool,
-  uuidv4,
 } from "../deps.ts";
 
-import createBlogService from "./blog_service.ts";
-import createDbService from "./db_service.ts";
-import createRoutes, { PostNotFoundError, InvalidUuidError } from "./routes.ts";
-
 const BINDING = ":8000";
-
-function createClientOpts() {
-  return Object.fromEntries([
-    ["hostname", "POSTGRES_HOST"],
-    ["user", "POSTGRES_USER"],
-    ["password", "POSTGRES_PASSWORD"],
-    ["database", "POSTGRES_DB"],
-  ].map(([key, envVar]) => [key, Deno.env.get(envVar)]));
-}
-
-function getPoolConnectionCount() {
-  return Number.parseInt(Deno.env.get("POSTGRES_POOL_CONNECTIONS") || "1", 10);
-}
-
-const dbPool = new DBPool(createClientOpts(), getPoolConnectionCount());
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("en-GB", {
@@ -66,36 +42,7 @@ function serverError(e: Error) {
 
 function mapToErrorResponse(e: Error) {
   switch (e.constructor) {
-    case NotFoundError:
-    case PostNotFoundError:
-      return notFound(e);
-
-    case InvalidUuidError:
-      return badRequest(e);
-
     default:
       return serverError(e);
   }
 }
-
-const blogService = createBlogService(
-  createDbService(dbPool),
-  uuidv4.generate,
-);
-
-const router = createRouter(createRoutes(blogService));
-
-console.log(`Listening for requests on ${BINDING}...`);
-
-await listenAndServe(
-  BINDING,
-  async (req: ServerRequest) => {
-    logRequest(req);
-
-    try {
-      return req.respond(await router(req));
-    } catch (e) {
-      return req.respond(mapToErrorResponse(e));
-    }
-  },
-);
