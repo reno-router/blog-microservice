@@ -2,7 +2,12 @@
 
 [![CI](https://github.com/reno-router/blog-microservice/workflows/CI/badge.svg?branch=master)](https://github.com/reno-router/blog-microservice/actions?query=workflow%3ACI)
 
-I will be adding unit tests, CICD, and extending this README over the next week (as of 8th August), but to run the service:
+An example Reno microservice for creating and fetching blog posts from a PostgreSQL database.
+
+## Running Locally
+
+
+
 
 1. [install Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) if you haven't already
 

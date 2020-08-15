@@ -1,3 +1,8 @@
+# Production Dockerfile that caches
+# project dependencies at build time
+
+# TODO: inline everything with `deno bundle` at build time?
+
 FROM hayd/alpine-deno:1.3.0
 
 COPY . /microservice
