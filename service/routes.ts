@@ -5,10 +5,11 @@ import {
   forMethod,
   withJsonBody,
   RouteHandler,
+  ProcessedRequest,
 } from "../deps.ts";
 
 import { BlogService } from "./blog_service.ts";
-import { ProcessedRequest } from "https://deno.land/x/reno@v1.2.1/reno/helpers.ts";
+
 export interface EditPostPayload {
   contents: string;
 }
