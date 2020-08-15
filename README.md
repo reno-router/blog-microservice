@@ -26,7 +26,6 @@ You can install the Deno dependencies and their accompanying TypeScript definiti
 
 This project has extensive unit test coverage. The test suite can be invoked with `deno test`.
 
-
 ## Operations
 
 ### `GET /posts`
