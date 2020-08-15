@@ -6,7 +6,7 @@ An example Reno microservice for creating and fetching blog posts from a Postgre
 
 ## Running Locally
 
-This repo includes a [Docker Compose](https://docs.docker.com/compose/) configuration and a [dedicated Dockerfile for local development](https://github.com/reno-router/blog-microservice/blob/master/Dockerfile.local), which together will:
+This repo includes a [Docker Compose](https://docs.docker.com/compose/) [configuration](https://github.com/reno-router/blog-microservice/blob/master/docker-compose.yml) and a [dedicated Dockerfile for local development](https://github.com/reno-router/blog-microservice/blob/master/Dockerfile.local), which together will:
 
 * run a Postgres container, boostrapped with the [provided SQL intialisation and seed scripts](https://github.com/reno-router/blog-microservice/tree/master/data)
 * create a local network that's shared by both the database and microservice containers
