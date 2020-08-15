@@ -8,11 +8,11 @@ An example Reno microservice for creating and fetching blog posts from a Postgre
 
 This repo includes a [Docker Compose](https://docs.docker.com/compose/) [configuration](https://github.com/reno-router/blog-microservice/blob/master/docker-compose.yml) and a [dedicated Dockerfile for local development](https://github.com/reno-router/blog-microservice/blob/master/Dockerfile.local), which together will:
 
-* run a Postgres container, boostrapped with the [provided SQL intialisation and seed scripts](https://github.com/reno-router/blog-microservice/tree/master/data)
+* run a Postgres container, boostrapped with the [provided SQL initialisation and seed scripts](https://github.com/reno-router/blog-microservice/tree/master/data)
 * create a local network that's shared by both the database and microservice containers
 * start the microservice via [Denon](https://github.com/denosaurs/denon), automatically restarting whenever the source code changes
 
-If you haven't already, [install Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Then it's simply a case of running `docker-compose up`; the service will be available on port 8000, against which any of the requests under [_Operations_](#operations) can be made.
+If you haven't already, [install Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/), after which it's simply a case of running `docker-compose up`; the service will be available on port 8000, against which any of the requests under [_Operations_](#operations) can be made.
 
 ```
 $ curl http://localhost:8000/posts
@@ -27,11 +27,11 @@ This project has extensive unit test coverage. The test suite can be invoked wit
 
 ### `GET /posts`
 
-Retrieves metadata for all the posts in the database.
+Retrieves metadata for all of the posts in the database.
 
 ### `GET /posts/<UUID>`
 
-Retrieves the metadata and content of the post for the given UUID.
+Retrieves the metadata and content of the post with the given UUID.
 
 ### `POST /posts`
 
@@ -43,13 +43,13 @@ Adds a new post to the database.
 {
   "title": "My new post",
   "contents": "Here's the content body of my post",
-  "authorId": "<UUID of the author>",
+  "authorId": "<Author UUID>",
   "tagIds": ["<Tag UUID>", ..."<Tag UUID>"]
 }
 ```
 ### `PATCH /posts/<UUID>`
 
-Replaces the `contents` property of the post for the given UUID.
+Replaces the `contents` property of the post with the given UUID.
 
 #### Request body
 
