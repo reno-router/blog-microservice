@@ -18,6 +18,10 @@ If you haven't already, [install Docker](https://docs.docker.com/get-docker/) an
 $ curl http://localhost:8000/posts
 ```
 
+### Developer Experience Protip
+
+You can install the Deno dependencies and their accompanying TypeScript definitions onto your host machine by running `deno cache deps.ts`; this isn't a prerequisite to running the service, but will allow your TS-enabled editor to discover said definitions, vastly improving the local development experience.
+
 ## Unit tests
 
 This project has extensive unit test coverage. The test suite can be invoked with `deno test`.
