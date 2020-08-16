@@ -8,7 +8,15 @@ import {
   EDIT_POST_QUERY,
 } from "./queries.ts";
 
-import { CreatePostPayload } from "./routes.ts";
+export interface EditPostPayload {
+  contents: string;
+}
+
+export interface CreatePostPayload extends EditPostPayload {
+  authorId: string;
+  tagIds: string[];
+  title: string;
+}
 
 function fillBy<T>(n: number, by: () => T) {
   return Array(n).fill(0).map(by);
