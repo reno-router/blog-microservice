@@ -1,4 +1,5 @@
 import {
+  listenAndServe,
   ServerRequest,
   textResponse,
 } from "../deps.ts";
@@ -46,3 +47,18 @@ function mapToErrorResponse(e: Error) {
       return serverError(e);
   }
 }
+
+console.log(`Listening for requests on ${BINDING}...`);
+
+await listenAndServe(
+  BINDING,
+  async (req: ServerRequest) => {
+    logRequest(req);
+
+    try {
+      // TODO: invoke the router here
+    } catch (e) {
+      return req.respond(mapToErrorResponse(e));
+    }
+  },
+);
