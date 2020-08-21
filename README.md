@@ -12,7 +12,14 @@ This repo includes a [Docker Compose](https://docs.docker.com/compose/) [configu
 * create a local network that's shared by both the database and microservice containers
 * start the microservice via [Denon](https://github.com/denosaurs/denon), automatically restarting whenever the source code changes
 
-If you haven't already, [install Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/), after which it's simply a case of running `docker-compose up`; the service will be available on port 8000, against which any of the requests under [_Operations_](#operations) can be made.
+If you haven't already, [install Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/), after which it's simply a case of running:
+
+```
+$ mv .env.sample .env
+$ docker-compose up
+```
+
+The service will be available on port 8000, against which any of the requests under [_Operations_](#operations) can be made.
 
 ```
 $ curl http://localhost:8000/posts
