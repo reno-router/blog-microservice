@@ -4,6 +4,14 @@
 
 An example Reno microservice for creating and fetching blog posts from a PostgreSQL database.
 
+---
+
+## Compatibility with Deno Native HTTP Server APIs
+
+Note that this project is built with an older version of Reno that does not support the [new native HTTP server APIs stabilised in Deno 1.13](https://deno.land/manual/runtime/http_server_apis). I will be upgrading it to Reno v2 at some point this week (w/c 27th September 2021).
+
+---
+
 ## Running Locally
 
 This repo includes a [Docker Compose](https://docs.docker.com/compose/) [configuration](https://github.com/reno-router/blog-microservice/blob/master/docker-compose.yml) and a [dedicated Dockerfile for local development](https://github.com/reno-router/blog-microservice/blob/master/Dockerfile.local), which together will:
