@@ -1,8 +1,8 @@
 // Recommended as per https://deno.land/std/manual.md#linking-to-third-party-code
 
-export * from "https://deno.land/std@v0.62.0/http/server.ts";
-export { v4 as uuidv4 } from "https://deno.land/std@v0.62.0/uuid/mod.ts";
-export * from "https://deno.land/std@v0.62.0/testing/asserts.ts";
+export * from "https://deno.land/std@0.62.0/http/server.ts";
+export { v4 as uuidv4 } from "https://deno.land/std@0.62.0/uuid/mod.ts";
+export * from "https://deno.land/std@0.62.0/testing/asserts.ts";
 export * from "https://deno.land/x/reno@v1.2.2/reno/mod.ts"; // TODO: bump to 1.2.3 when denoland cache clears
 export { Pool as DBPool } from "https://deno.land/x/postgres@v0.4.3/mod.ts";
 export { PoolClient as DBPoolClient } from "https://deno.land/x/postgres@v0.4.3/client.ts";
