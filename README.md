@@ -6,9 +6,11 @@ An example Reno microservice for creating and fetching blog posts from a Postgre
 
 ---
 
-## Compatibility with Deno Native HTTP Server APIs
+## ⚠️ Compatibility with Deno Native HTTP Server APIs ⚠️
 
-Note that this project is built with an older version of Reno that does not support the [new native HTTP server APIs stabilised in Deno 1.13](https://deno.land/manual/runtime/http_server_apis). I will be upgrading it to Reno v2 at some point this week (w/c 27th September 2021).
+11th October 2021
+
+Note that this project is built with an older version of Reno that does not support the [new native HTTP server APIs stabilised in Deno 1.13](https://deno.land/manual/runtime/http_server_apis). I will be upgrading it to Reno v2 at some point in the not-too-distant future.
 
 ---
 
