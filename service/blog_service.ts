@@ -37,7 +37,7 @@ function createBlogService(db: DbService, getUuid: () => string) {
 
     async getPost(id: string): Promise<Post> {
       const [post] = (await db.query<Post>(GET_POST_QUERY, id)).rows;
-      return post as Post;
+      return post;
     },
 
     async createPost(post: CreatePostPayload): Promise<string> {
