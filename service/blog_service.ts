@@ -1,11 +1,10 @@
-import { DBPool, uuidv4 } from "../deps.ts";
-import createDbService, { buildQuery, DbService } from "./db_service.ts";
+import { buildQuery, DbService } from "./db_service.ts";
 
 import {
-  GET_POSTS_QUERY,
-  GET_POST_QUERY,
   CREATE_POST_QUERY,
   EDIT_POST_QUERY,
+  GET_POST_QUERY,
+  GET_POSTS_QUERY,
 } from "./queries.ts";
 
 import { CreatePostPayload } from "./routes.ts";
@@ -33,15 +32,12 @@ interface Post extends PostMetadata {
 function createBlogService(db: DbService, getUuid: () => string) {
   return {
     async getPosts(): Promise<PostMetadata[]> {
-      const res = await db.query(GET_POSTS_QUERY);
-      return res.rowsOfObjects() as PostMetadata[];
+      return (await db.query<PostMetadata>(GET_POSTS_QUERY)).rows;
     },
 
     async getPost(id: string): Promise<Post> {
-      const res = await db.query(GET_POST_QUERY, id);
-      const [post] = res.rowsOfObjects();
-
-      return post as Post;
+      const [post] = (await db.query<Post>(GET_POST_QUERY, id)).rows;
+      return post;
     },
 
     async createPost(post: CreatePostPayload): Promise<string> {
@@ -49,7 +45,7 @@ function createBlogService(db: DbService, getUuid: () => string) {
       const [createPostQuery, createTagsQuery] = CREATE_POST_QUERY;
 
       await db.tx(async (c) => {
-        await c.query(buildQuery(
+        await c.queryObject(buildQuery(
           createPostQuery,
           postId,
           post.authorId,
@@ -57,7 +53,7 @@ function createBlogService(db: DbService, getUuid: () => string) {
           post.contents,
         ));
 
-        await c.query(buildQuery(
+        await c.queryObject(buildQuery(
           createTagsQuery,
           fillBy(post.tagIds.length, getUuid),
           post.tagIds,
@@ -69,13 +65,13 @@ function createBlogService(db: DbService, getUuid: () => string) {
     },
 
     async editPost(id: string, contents: string): Promise<number> {
-      const { rowCount } = await db.query(
+      const { rowCount = 0 } = await db.query(
         EDIT_POST_QUERY,
         id,
         contents,
       );
 
-      return rowCount || 0;
+      return rowCount;
     },
   };
 }

@@ -1,18 +1,20 @@
 import {
-  sinon,
   assertEquals,
   assertStrictEquals,
   assertThrowsAsync,
-  assert,
+  sinon,
   SinonStub,
 } from "../deps.ts";
 
 import test from "./test_utils.ts";
 import createDbService, { buildQuery } from "./db_service.ts";
 
-function createPool(queryResult: {} | Error, resultForCall = 0) {
+function createPool(
+  queryResult: Record<string, unknown> | Error,
+  resultForCall = 0,
+) {
   const client = {
-    query: sinon.stub().onCall(
+    queryObject: sinon.stub().onCall(
       resultForCall,
     )[queryResult instanceof Error ? "rejects" : "resolves"](
       queryResult,
@@ -27,8 +29,8 @@ function createPool(queryResult: {} | Error, resultForCall = 0) {
   return [dbPool, client] as const;
 }
 
-function getQueryStatements(client: { query: SinonStub }) {
-  return client.query.getCalls().map(({ args: [statement] }) =>
+function getQueryStatements(client: { queryObject: SinonStub }) {
+  return client.queryObject.getCalls().map(({ args: [statement] }) =>
     statement as string
   );
 }
@@ -47,11 +49,11 @@ test("dbService.query() should retrieve a client from the pool, invoke a query a
 
   assertEquals(result, queryResult);
   assertStrictEquals(dbPool.connect.callCount, 1);
-  assertStrictEquals(client.query.callCount, 1);
+  assertStrictEquals(client.queryObject.callCount, 1);
   assertStrictEquals(client.release.callCount, 1);
 
   assertStrictEquals(
-    client.query.calledWithExactly(buildQuery(query, args)),
+    client.queryObject.calledWithExactly(buildQuery(query, args)),
     true,
   );
 });
@@ -83,7 +85,7 @@ test("dbService.tx() should wrap any inner queries with 'begin' and 'commit' sta
   const dbService = createDbService(dbPool);
 
   await dbService.tx(async (c) => {
-    await c.query(query);
+    await c.queryObject(query);
   });
 
   assertStrictEquals(dbPool.connect.callCount, 1);
@@ -105,7 +107,7 @@ test("dbService.tx() should rollback transactions when an error is thrown, still
   await assertThrowsAsync(
     () =>
       dbService.tx(async (c) => {
-        await c.query(query);
+        await c.queryObject(query);
       }),
     Error,
     "no",

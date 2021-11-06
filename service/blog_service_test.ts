@@ -1,8 +1,8 @@
 import {
-  sinon,
   assertEquals,
   assertStrictEquals,
   DBPoolClient,
+  sinon,
 } from "../deps.ts";
 import createBlogService from "./blog_service.ts";
 import test from "./test_utils.ts";
@@ -10,19 +10,19 @@ import { CREATE_POST_QUERY } from "./queries.ts";
 import { buildQuery } from "./db_service.ts";
 
 function createDbService<TQueryResult>(
-  queryResult: TQueryResult[],
+  rows: TQueryResult[],
   includeRowCount = true,
 ) {
   const txClient = {
-    query: sinon.stub().resolves(),
+    queryObject: sinon.stub().resolves(),
   };
 
   const dbService = {
     query: sinon.stub().resolves({
-      rowsOfObjects: () => queryResult,
-      rowCount: includeRowCount ? queryResult.length : undefined,
+      rows,
+      rowCount: includeRowCount ? rows.length : undefined,
     }),
-    tx: async (cb: (c: Pick<DBPoolClient, "query">) => Promise<void>) => {
+    tx: async (cb: (c: Pick<DBPoolClient, "queryObject">) => Promise<void>) => {
       await cb(txClient);
     },
   };
@@ -80,24 +80,27 @@ test("blogService.createPost() should run the create post and tags queries withi
 
   assertStrictEquals(postId, "uuid-1");
 
-  assertEquals(txClient.query.getCalls().map(({ args: [query] }) => query), [
-    buildQuery(
-      createPostQuery,
-      postId,
-      authorId,
-      title,
-      contents,
-    ),
-    buildQuery(
-      createTagsQuery,
-      [
-        "uuid-2",
-        "uuid-3",
-      ],
-      tagIds,
-      postId,
-    ),
-  ]);
+  assertEquals(
+    txClient.queryObject.getCalls().map(({ args: [query] }) => query),
+    [
+      buildQuery(
+        createPostQuery,
+        postId,
+        authorId,
+        title,
+        contents,
+      ),
+      buildQuery(
+        createTagsQuery,
+        [
+          "uuid-2",
+          "uuid-3",
+        ],
+        tagIds,
+        postId,
+      ),
+    ],
+  );
 });
 
 test("blogService.editPost() should update the contents of the given post ID and return the row count", async () => {

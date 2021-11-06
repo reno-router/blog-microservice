@@ -1,5 +1,4 @@
-const buildSelectPostQuery = (where = "", ...additionalFields: string[]) =>
-  `
+const buildSelectPostQuery = (where = "", ...additionalFields: string[]) => `
   select
     p.id,
     p.title,

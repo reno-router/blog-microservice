@@ -1,11 +1,11 @@
 import {
-  createRouteMap,
-  jsonResponse,
   AugmentedRequest,
+  createRouteMap,
   forMethod,
-  withJsonBody,
-  RouteHandler,
+  jsonResponse,
   ProcessedRequest,
+  RouteHandler,
+  withJsonBody,
 } from "../deps.ts";
 
 import { BlogService } from "./blog_service.ts";
@@ -60,10 +60,7 @@ async function getPost(blogService: Pick<BlogService, "getPost">, id: string) {
  * provide an implementation of BlogService with
  * a subset (U) of methods; this is useful for our
  * unit tests as we don't have to define every single
- * method to test handlers that don't need them
- *
- * TODO: Don't introduce route handler factories
- * or Pick<T> until the end of the article! */
+ * method to test handlers that don't need them. */
 export function createGetPostsHandler(
   blogService: Pick<BlogService, "getPosts" | "getPost">,
 ) {
@@ -79,9 +76,9 @@ export function createAddPostHandler(
   blogService: Pick<BlogService, "createPost">,
 ) {
   return async function addPost(
-    { body }: Pick<ProcessedRequest<CreatePostPayload>, "body">,
+    { parsedBody }: Pick<ProcessedRequest<CreatePostPayload>, "parsedBody">,
   ) {
-    const id = await blogService.createPost(body);
+    const id = await blogService.createPost(parsedBody);
     return jsonResponse({ id });
   };
 }
@@ -90,9 +87,9 @@ export function createEditPostHandler(
   blogService: Pick<BlogService, "editPost">,
 ) {
   return async function editPost(
-    { body: { contents }, routeParams: [id] }: Pick<
+    { parsedBody: { contents }, routeParams: [id] }: Pick<
       ProcessedRequest<EditPostPayload>,
-      "body" | "routeParams"
+      "parsedBody" | "routeParams"
     >,
   ) {
     const rowCount = await blogService.editPost(id, contents);

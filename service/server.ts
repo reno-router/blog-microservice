@@ -1,16 +1,14 @@
 import {
-  ServerRequest,
-  listenAndServe,
   createRouter,
-  NotFoundError,
-  textResponse,
   DBPool,
+  listenAndServe,
+  MissingRouteError,
   uuidv4,
 } from "../deps.ts";
 
 import createBlogService from "./blog_service.ts";
 import createDbService from "./db_service.ts";
-import createRoutes, { PostNotFoundError, InvalidUuidError } from "./routes.ts";
+import createRoutes, { InvalidUuidError, PostNotFoundError } from "./routes.ts";
 
 const BINDING = ":8000";
 
@@ -27,7 +25,7 @@ function getPoolConnectionCount() {
   return Number.parseInt(Deno.env.get("POSTGRES_POOL_CONNECTIONS") || "1", 10);
 }
 
-const dbPool = new DBPool(createClientOpts(), getPoolConnectionCount());
+const dbPool = new DBPool(createClientOpts(), getPoolConnectionCount(), true);
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("en-GB", {
@@ -41,15 +39,14 @@ function formatDate(date: Date) {
   });
 }
 
-function logRequest(req: ServerRequest) {
+function logRequest(req: Request) {
   console.log(`[${formatDate(new Date())}] Request for ${req.url}`);
 }
 
 function createErrorResponse(status: number, { message }: Error) {
-  return {
+  return new Response(message, {
     status,
-    ...textResponse(message),
-  };
+  });
 }
 
 function badRequest(e: Error) {
@@ -66,7 +63,7 @@ function serverError(e: Error) {
 
 function mapToErrorResponse(e: Error) {
   switch (e.constructor) {
-    case NotFoundError:
+    case MissingRouteError:
     case PostNotFoundError:
       return notFound(e);
 
@@ -89,13 +86,13 @@ console.log(`Listening for requests on ${BINDING}...`);
 
 await listenAndServe(
   BINDING,
-  async (req: ServerRequest) => {
+  async (req) => {
     logRequest(req);
 
     try {
-      return req.respond(await router(req));
+      return await router(req);
     } catch (e) {
-      return req.respond(mapToErrorResponse(e));
+      return mapToErrorResponse(e);
     }
   },
 );

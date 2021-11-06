@@ -1,16 +1,16 @@
 import {
-  sinon,
-  jsonResponse,
   assertResponsesAreEqual,
   assertStrictEquals,
   assertThrowsAsync,
+  jsonResponse,
+  sinon,
 } from "../deps.ts";
 
 import {
-  createGetPostsHandler,
-  PostNotFoundError,
   createAddPostHandler,
   createEditPostHandler,
+  createGetPostsHandler,
+  PostNotFoundError,
 } from "./routes.ts";
 
 import test from "./test_utils.ts";
@@ -112,7 +112,7 @@ test("addPost route handler should add the post and return the ID", async () => 
   };
 
   const addPost = createAddPostHandler(blogService);
-  const response = await addPost({ body: postPayload });
+  const response = await addPost({ parsedBody: postPayload });
 
   assertResponsesAreEqual(response, jsonResponse({ id }));
   assertStrictEquals(blogService.createPost.callCount, 1);
@@ -130,7 +130,10 @@ test("editPost route handler should edit the post for the given ID and return sa
   };
 
   const editPost = createEditPostHandler(blogService);
-  const response = await editPost({ body: editPayload, routeParams: [id] });
+  const response = await editPost({
+    parsedBody: editPayload,
+    routeParams: [id],
+  });
 
   assertResponsesAreEqual(response, jsonResponse({ id }));
   assertStrictEquals(blogService.editPost.callCount, 1);
@@ -150,7 +153,7 @@ test("editPost route handler should reject with a PostNotFound error if a post f
   const editPost = createEditPostHandler(blogService);
 
   await assertThrowsAsync(
-    () => editPost({ body: editPayload, routeParams: [id] }),
+    () => editPost({ parsedBody: editPayload, routeParams: [id] }),
     PostNotFoundError,
     id,
   );
