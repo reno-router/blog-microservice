@@ -1,16 +1,18 @@
 import {
-  sinon,
   assertEquals,
   assertStrictEquals,
   assertThrowsAsync,
-  assert,
+  sinon,
   SinonStub,
 } from "../deps.ts";
 
 import test from "./test_utils.ts";
 import createDbService, { buildQuery } from "./db_service.ts";
 
-function createPool(queryResult: {} | Error, resultForCall = 0) {
+function createPool(
+  queryResult: Record<string, unknown> | Error,
+  resultForCall = 0,
+) {
   const client = {
     queryObject: sinon.stub().onCall(
       resultForCall,

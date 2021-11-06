@@ -1,11 +1,10 @@
-import { DBPool, uuidv4 } from "../deps.ts";
-import createDbService, { buildQuery, DbService } from "./db_service.ts";
+import { buildQuery, DbService } from "./db_service.ts";
 
 import {
-  GET_POSTS_QUERY,
-  GET_POST_QUERY,
   CREATE_POST_QUERY,
   EDIT_POST_QUERY,
+  GET_POST_QUERY,
+  GET_POSTS_QUERY,
 } from "./queries.ts";
 
 import { CreatePostPayload } from "./routes.ts";

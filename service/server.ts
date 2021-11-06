@@ -1,14 +1,14 @@
 import {
-  listenAndServe,
   createRouter,
-  MissingRouteError,
   DBPool,
+  listenAndServe,
+  MissingRouteError,
   uuidv4,
 } from "../deps.ts";
 
 import createBlogService from "./blog_service.ts";
 import createDbService from "./db_service.ts";
-import createRoutes, { PostNotFoundError, InvalidUuidError } from "./routes.ts";
+import createRoutes, { InvalidUuidError, PostNotFoundError } from "./routes.ts";
 
 const BINDING = ":8000";
 
@@ -86,7 +86,7 @@ console.log(`Listening for requests on ${BINDING}...`);
 
 await listenAndServe(
   BINDING,
-  async req => {
+  async (req) => {
     logRequest(req);
 
     try {

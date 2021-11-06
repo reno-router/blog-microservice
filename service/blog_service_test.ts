@@ -1,8 +1,8 @@
 import {
-  sinon,
   assertEquals,
   assertStrictEquals,
   DBPoolClient,
+  sinon,
 } from "../deps.ts";
 import createBlogService from "./blog_service.ts";
 import test from "./test_utils.ts";
@@ -80,24 +80,27 @@ test("blogService.createPost() should run the create post and tags queries withi
 
   assertStrictEquals(postId, "uuid-1");
 
-  assertEquals(txClient.queryObject.getCalls().map(({ args: [query] }) => query), [
-    buildQuery(
-      createPostQuery,
-      postId,
-      authorId,
-      title,
-      contents,
-    ),
-    buildQuery(
-      createTagsQuery,
-      [
-        "uuid-2",
-        "uuid-3",
-      ],
-      tagIds,
-      postId,
-    ),
-  ]);
+  assertEquals(
+    txClient.queryObject.getCalls().map(({ args: [query] }) => query),
+    [
+      buildQuery(
+        createPostQuery,
+        postId,
+        authorId,
+        title,
+        contents,
+      ),
+      buildQuery(
+        createTagsQuery,
+        [
+          "uuid-2",
+          "uuid-3",
+        ],
+        tagIds,
+        postId,
+      ),
+    ],
+  );
 });
 
 test("blogService.editPost() should update the contents of the given post ID and return the row count", async () => {
