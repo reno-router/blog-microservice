@@ -11,7 +11,7 @@
  *
  * https://deno.land/manual/testing#resource-and-async-op-sanitizers
  *
- * TODO: replace Sinon import source of migrate to
+ * TODO: replace Sinon import source or migrate to
  * another stub library that isn't testdouble.js */
 export default function test(
   name: string,
