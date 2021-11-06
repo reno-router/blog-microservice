@@ -1,7 +1,7 @@
 # Dockerfile used for local development, using Denon
 # to restart Deno when the source code changes
 
-FROM hayd/alpine-deno:1.3.0
+FROM denoland/deno:1.15.3
 
 WORKDIR /microservice
 USER deno

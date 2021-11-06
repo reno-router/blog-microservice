@@ -79,9 +79,9 @@ export function createAddPostHandler(
   blogService: Pick<BlogService, "createPost">,
 ) {
   return async function addPost(
-    { body }: Pick<ProcessedRequest<CreatePostPayload>, "body">,
+    { parsedBody }: Pick<ProcessedRequest<CreatePostPayload>, "parsedBody">,
   ) {
-    const id = await blogService.createPost(body);
+    const id = await blogService.createPost(parsedBody);
     return jsonResponse({ id });
   };
 }
@@ -90,9 +90,9 @@ export function createEditPostHandler(
   blogService: Pick<BlogService, "editPost">,
 ) {
   return async function editPost(
-    { body: { contents }, routeParams: [id] }: Pick<
+    { parsedBody: { contents }, routeParams: [id] }: Pick<
       ProcessedRequest<EditPostPayload>,
-      "body" | "routeParams"
+      "parsedBody" | "routeParams"
     >,
   ) {
     const rowCount = await blogService.editPost(id, contents);

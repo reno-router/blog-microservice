@@ -33,14 +33,11 @@ interface Post extends PostMetadata {
 function createBlogService(db: DbService, getUuid: () => string) {
   return {
     async getPosts(): Promise<PostMetadata[]> {
-      const res = await db.query(GET_POSTS_QUERY);
-      return res.rowsOfObjects() as PostMetadata[];
+      return (await db.query<PostMetadata>(GET_POSTS_QUERY)).rows;
     },
 
     async getPost(id: string): Promise<Post> {
-      const res = await db.query(GET_POST_QUERY, id);
-      const [post] = res.rowsOfObjects();
-
+      const [post] = (await db.query<Post>(GET_POST_QUERY, id)).rows;
       return post as Post;
     },
 
@@ -49,7 +46,7 @@ function createBlogService(db: DbService, getUuid: () => string) {
       const [createPostQuery, createTagsQuery] = CREATE_POST_QUERY;
 
       await db.tx(async (c) => {
-        await c.query(buildQuery(
+        await c.queryObject(buildQuery(
           createPostQuery,
           postId,
           post.authorId,
@@ -57,7 +54,7 @@ function createBlogService(db: DbService, getUuid: () => string) {
           post.contents,
         ));
 
-        await c.query(buildQuery(
+        await c.queryObject(buildQuery(
           createTagsQuery,
           fillBy(post.tagIds.length, getUuid),
           post.tagIds,
@@ -69,13 +66,13 @@ function createBlogService(db: DbService, getUuid: () => string) {
     },
 
     async editPost(id: string, contents: string): Promise<number> {
-      const { rowCount } = await db.query(
+      const { rowCount = 0 } = await db.query(
         EDIT_POST_QUERY,
         id,
         contents,
       );
 
-      return rowCount || 0;
+      return rowCount;
     },
   };
 }

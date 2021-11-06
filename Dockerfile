@@ -3,7 +3,7 @@
 
 # TODO: inline everything with `deno bundle` at build time?
 
-FROM hayd/alpine-deno:1.3.0
+FROM denoland/deno:1.15.3
 
 COPY . /microservice
 WORKDIR /microservice

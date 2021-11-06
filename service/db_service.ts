@@ -9,25 +9,25 @@ export function buildQuery(text: string, ...args: (string | string[])[]) {
 
 function createDbService(dbPool: Pick<DBPool, "connect">) {
   return {
-    async query(query: string, ...args: (string | string[])[]) {
+    async query<TItem>(query: string, ...args: (string | string[])[]) {
       const client = await dbPool.connect();
 
       try {
-        return await client.query(buildQuery(query, ...args));
+        return (await client.queryObject<TItem>(buildQuery(query, ...args)));
       } finally {
         client.release();
       }
     },
 
-    async tx(cb: (c: Pick<DBPoolClient, "query">) => Promise<void>) {
+    async tx(cb: (c: Pick<DBPoolClient, "queryObject">) => Promise<void>) {
       const client = await dbPool.connect();
 
       try {
-        await client.query("begin;");
+        await client.queryObject("begin;");
         await cb(client);
-        await client.query("commit;");
+        await client.queryObject("commit;");
       } catch (e) {
-        await client.query("rollback;");
+        await client.queryObject("rollback;");
         throw e;
       } finally {
         client.release();
