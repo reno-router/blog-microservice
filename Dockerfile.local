@@ -4,9 +4,9 @@
 FROM denoland/deno:1.15.3
 
 WORKDIR /microservice
+
+RUN ["deno", "install", "--allow-read", "--allow-run", "--allow-write", "--allow-net", "-f", "--unstable", "https://deno.land/x/denon@2.4.9/denon.ts"]
+RUN ["chown", "-R", "deno", "/deno-dir"]
+
 USER deno
-
-RUN ["deno", "install", "--allow-read", "--allow-run", "--allow-write", "--allow-net", "-f", "--unstable", "https://deno.land/x/denon@2.3.0/denon.ts"]
-
-# Awaits Postgres to bind before starting Denon
-ENTRYPOINT ["bash", "-c", "'while !</dev/tcp/db/5432; do sleep 1; done; /home/deno/.deno/bin/denon run --allow-env --allow-net service/server.ts'"]
+ENTRYPOINT ["denon", "run", "--allow-env", "--allow-net", "service/server.ts"]

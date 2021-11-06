@@ -25,7 +25,7 @@ function getPoolConnectionCount() {
   return Number.parseInt(Deno.env.get("POSTGRES_POOL_CONNECTIONS") || "1", 10);
 }
 
-const dbPool = new DBPool(createClientOpts(), getPoolConnectionCount());
+const dbPool = new DBPool(createClientOpts(), getPoolConnectionCount(), true);
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("en-GB", {
