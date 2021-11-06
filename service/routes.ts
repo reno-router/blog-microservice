@@ -60,10 +60,7 @@ async function getPost(blogService: Pick<BlogService, "getPost">, id: string) {
  * provide an implementation of BlogService with
  * a subset (U) of methods; this is useful for our
  * unit tests as we don't have to define every single
- * method to test handlers that don't need them
- *
- * TODO: Don't introduce route handler factories
- * or Pick<T> until the end of the article! */
+ * method to test handlers that don't need them. */
 export function createGetPostsHandler(
   blogService: Pick<BlogService, "getPosts" | "getPost">,
 ) {
