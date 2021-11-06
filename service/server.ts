@@ -1,9 +1,7 @@
 import {
-  ServerRequest,
   listenAndServe,
   createRouter,
-  NotFoundError,
-  textResponse,
+  MissingRouteError,
   DBPool,
   uuidv4,
 } from "../deps.ts";
@@ -41,15 +39,14 @@ function formatDate(date: Date) {
   });
 }
 
-function logRequest(req: ServerRequest) {
+function logRequest(req: Request) {
   console.log(`[${formatDate(new Date())}] Request for ${req.url}`);
 }
 
 function createErrorResponse(status: number, { message }: Error) {
-  return {
+  return new Response(message, {
     status,
-    ...textResponse(message),
-  };
+  });
 }
 
 function badRequest(e: Error) {
@@ -66,7 +63,7 @@ function serverError(e: Error) {
 
 function mapToErrorResponse(e: Error) {
   switch (e.constructor) {
-    case NotFoundError:
+    case MissingRouteError:
     case PostNotFoundError:
       return notFound(e);
 
@@ -89,13 +86,13 @@ console.log(`Listening for requests on ${BINDING}...`);
 
 await listenAndServe(
   BINDING,
-  async (req: ServerRequest) => {
+  async req => {
     logRequest(req);
 
     try {
-      return req.respond(await router(req));
+      return await router(req);
     } catch (e) {
-      return req.respond(mapToErrorResponse(e));
+      return mapToErrorResponse(e);
     }
   },
 );
