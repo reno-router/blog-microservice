@@ -92,9 +92,9 @@ export function createEditPostHandler(
       "parsedBody" | "routeParams"
     >,
   ) {
-    const rowCount = await blogService.editPost(id, contents);
+    const updatedPostCount = await blogService.editPost(id, contents);
 
-    if (rowCount === 0) {
+    if (updatedPostCount === 0) {
       throw new PostNotFoundError(id);
     }
 
