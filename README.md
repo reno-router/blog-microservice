@@ -2,6 +2,17 @@
 
 [![CI](https://github.com/reno-router/blog-microservice/workflows/CI/badge.svg?branch=master)](https://github.com/reno-router/blog-microservice/actions?query=workflow%3ACI)
 
+> ## Notice
+> ⚠️ **Reno has been sunset,** and will thus no longer receive updates. The final version is v2.0.105, which supports Deno 1.34.3 and std 0.192.0.
+>
+> It is recommended that you use an alternative routing library or HTTP framework, such as [Oak](https://oakserver.github.io/oak/) or [Opine](https://github.com/cmorten/opine).
+>
+> Thank you to anyone who supported the project during its lifetime.
+>
+> **Reno: 2019-2023**
+
+---
+
 An example Reno microservice for creating and fetching blog posts from a PostgreSQL database.
 
 ## Running Locally
